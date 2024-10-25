@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -11,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -25,15 +28,22 @@ public class Hydra {
     public DcMotor bl;
     public DcMotor br;
     public DcMotor[] motors;
+    public Servo toppos,middlepos,bottompos;
+
 
 
     public void initializeHardware(HardwareMap hardwareMap){
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
         fl = hardwareMap.get(DcMotor.class, "fl");
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-
+        toppos = hardwareMap.get(Servo.class,"toppos");
+        middlepos = hardwareMap.get(Servo.class,"middlepos");
+        bottompos = hardwareMap.get(Servo.class,"bottompos");
+        toppos.setPosition(0.0);
+        middlepos.setPosition(0.5);
+        bottompos.setPosition(0.5);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
 
