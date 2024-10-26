@@ -59,6 +59,7 @@ public class Drive extends LinearOpMode {
 
 	// TODO XXX Create an instance of Hydra (Hydra.java)
         Hydra hydra = new Hydra();
+        hydra.initializeHardware(hardwareMap);
 
 	// TODO XXX Use the motors mapped by Hydra
 //*        DcMotor fl = hardwareMap.get(DcMotor.class, "leftFrontDrive");
@@ -90,6 +91,10 @@ public class Drive extends LinearOpMode {
             //dT=Math.subtractExact(lastTime,now);
             dT=now-lastTime;
             lastTime= now;
+
+            hydra.toppos.setPosition(gamepad2.a? 1.0 : 0.0 );
+            hydra.middlepos.setPosition((gamepad2.right_stick_x /2.0) +0.5);
+            hydra.bottompos.setPosition((gamepad2.left_stick_x /2.0) +0.5);
 
 	    // TODO XXX Use the IMU for the heading
             // heading= (drive.pose.heading.toDouble());
