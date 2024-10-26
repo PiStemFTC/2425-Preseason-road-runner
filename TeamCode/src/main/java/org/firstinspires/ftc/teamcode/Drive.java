@@ -3,12 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="Drive", group="TeleOp")
 public class Drive extends LinearOpMode {
+
+    private imu IMU;
+
     final double forwardDirection[]={
             1,1,
             1,1};
@@ -43,6 +48,7 @@ public class Drive extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
 	// TODO XXX Create an instance of Hydra (Hydra.java)
+        Hydra = new Hydra();
 
 	// TODO XXX Use the motors mapped by Hydraw
         DcMotor fl = hardwareMap.get(DcMotor.class, "leftFrontDrive");
@@ -53,6 +59,10 @@ public class Drive extends LinearOpMode {
 
 	// TODO XXX Initialize the IMU;
 	// * Create an IMU (look up how to accomplish this)
+        imu = hardwareMap.get(IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
 	//   - part of the initialization will be assigning the orientation of the Control Hub
 
         waitForStart();
