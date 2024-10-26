@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Drive extends LinearOpMode {
 
     private IMU imu;
+    public DcMotor slide;
     public DcMotor fl;
     public DcMotor fr;
     public DcMotor bl;
@@ -71,6 +72,7 @@ public class Drive extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
+        slide = hardwareMap.get(DcMotor.class, "slide");
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotor[]{fl,fr,bl,br};
@@ -95,6 +97,8 @@ public class Drive extends LinearOpMode {
             hydra.toppos.setPosition(gamepad2.a? 1.0 : 0.0 );
             hydra.middlepos.setPosition((gamepad2.right_stick_x /2.0) +0.5);
             hydra.bottompos.setPosition((gamepad2.left_stick_x /2.0) +0.5);
+
+
 
 	    // TODO XXX Use the IMU for the heading
             // heading= (drive.pose.heading.toDouble());
