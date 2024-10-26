@@ -38,12 +38,23 @@ public class Drive extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+	// TODO XXX MecanumDrive is not available in this version of the repository
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+	// TODO XXX Create an instance of Hydra (Hydra.java)
+
+	// TODO XXX Use the motors mapped by Hydraw
         DcMotor fl = hardwareMap.get(DcMotor.class, "leftFrontDrive");
         DcMotor bl = hardwareMap.get(DcMotor.class, "leftBackDrive");
         DcMotor br = hardwareMap.get(DcMotor.class, "rightBackDrive");
         DcMotor fr = hardwareMap.get(DcMotor.class, "rightFrontDrive");
         DcMotor motors[]={fl,fr,bl,br,};
+
+	// TODO XXX Initialize the IMU;
+	// * Create an IMU (look up how to accomplish this)
+	//   - part of the initialization will be assigning the orientation of the Control Hub
+
         waitForStart();
 
         while (opModeIsActive()) {
@@ -52,6 +63,7 @@ public class Drive extends LinearOpMode {
             dT=now-lastTime;
             lastTime= now;
 
+	    // TODO XXX Use the IMU for the heading
             heading= (drive.pose.heading.toDouble());
            changeInHeading=circleDiff(lastHeading,heading);
            lastHeading=(drive.pose.heading.toDouble());
@@ -76,6 +88,7 @@ public class Drive extends LinearOpMode {
                powers[i]+=turnDirection[i]*error;
            }
             for (int i=0;i<4;++i){
+		    // XXX TODO Use Hydra motors array instead of this copy
                 motors[i].setPower(powers[i]);
             }
             //joepos = (gamepad1.left_stick_x /2.0) +0.5;
