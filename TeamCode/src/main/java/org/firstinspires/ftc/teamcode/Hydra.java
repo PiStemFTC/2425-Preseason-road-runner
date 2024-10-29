@@ -28,6 +28,7 @@ public class Hydra {
     public DcMotor bl;
     public DcMotor br;
     public DcMotor[] motors;
+    public DcMotor slide;
     public Servo toppos,middlepos,bottompos;
 
 
@@ -38,6 +39,7 @@ public class Hydra {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
+        slide = hardwareMap.get(DcMotor.class, "slide");
         toppos = hardwareMap.get(Servo.class,"toppos");
         middlepos = hardwareMap.get(Servo.class,"middlepos");
         bottompos = hardwareMap.get(Servo.class,"bottompos");
@@ -71,6 +73,23 @@ public class Hydra {
 
     public void stop(){
         forward(0);
+    }
+
+    public void autoHome(){
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        long startPos = slide.getCurrentPosition();
+        slide.setPower(.2);
+        while(true){
+            try{Thread.sleep(50);} catch (Exception e){}
+            if(startPos == slide.getCurrentPosition()){
+                break;
+            } else{
+                startPos = slide.getCurrentPosition();
+            }
+        }
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setTargetPosition(0);
     }
 
     public void moveToAprilTag(Telemetry telemetry, Hydra hydra){

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "BasicAutoRed", group = "Autonomous")
-public class BasicAuto extends LinearOpMode {
+public class BasicAutoRed extends LinearOpMode {
   private Hydra hydra;
     public void runOpMode(){
     hydra.initializeHardware(hardwareMap);

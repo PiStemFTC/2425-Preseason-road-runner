@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Drive extends LinearOpMode {
 
     private IMU imu;
-    public DcMotor slide;
+    //public DcMotor slide;
     public DcMotor fl;
     public DcMotor fr;
     public DcMotor bl;
@@ -53,6 +53,8 @@ public class Drive extends LinearOpMode {
     }
     @Override
     public void runOpMode() throws InterruptedException {
+
+        int slidePos = 0;
         //telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
 	// TODO XXX MecanumDrive is not available in this version of the repository
@@ -72,7 +74,7 @@ public class Drive extends LinearOpMode {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-        slide = hardwareMap.get(DcMotor.class, "slide");
+        //slide = hardwareMap.get(DcMotor.class, "slide");
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         motors = new DcMotor[]{fl,fr,bl,br};
@@ -84,9 +86,17 @@ public class Drive extends LinearOpMode {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP)));
+        imu.resetYaw();
 
+        telemetry.addLine("zeroing slide");
+        telemetry.update();
+        hydra.autoHome();
+        telemetry.addLine("ready");
+        telemetry.update();
 
         waitForStart();
+        imu.resetYaw();
+
 
         while (opModeIsActive()) {
             now= System.currentTimeMillis();
@@ -96,7 +106,7 @@ public class Drive extends LinearOpMode {
 
             hydra.toppos.setPosition(gamepad2.a? 1.0 : 0.0 );
             hydra.middlepos.setPosition((gamepad2.right_stick_x /2.0) +0.5);
-            hydra.bottompos.setPosition((gamepad2.left_stick_x /2.0) +0.5);
+            hydra.bottompos.setPosition(gamepad2.b? 1.0 : 0.0 );
 
 
 
@@ -152,6 +162,17 @@ public class Drive extends LinearOpMode {
                 }
                 turning=false;
             }
+
+            slidePos = slidePos + (int)(gamepad2.left_stick_y * 10);
+
+            if(slidePos < 0){
+                slidePos = 0;
+            } else if (slidePos > 1000) {
+                slidePos = 1000;
+            }
+
+            hydra.slide.setTargetPosition(slidePos);
+
             orientation = imu.getRobotYawPitchRollAngles();
             telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
             telemetry.addData("error",error);
@@ -159,6 +180,7 @@ public class Drive extends LinearOpMode {
             telemetry.addData("targetHeading",targetHeading);
             telemetry.addData("dT",dT);
             telemetry.addData("changeInHeading",changeInHeading);
+            telemetry.addData("slide position", hydra.slide.getCurrentPosition());
             if (dT>0) {
                 telemetry.addData("radians/ms", changeInHeading / dT);
             }
