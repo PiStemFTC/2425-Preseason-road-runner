@@ -48,6 +48,7 @@ public class Hydra {
         bottompos.setPosition(0.5);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
+        slide.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         motors = new DcMotor[]{fl,fr,bl,br};
@@ -78,7 +79,7 @@ public class Hydra {
     public void autoHome(){
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         long startPos = slide.getCurrentPosition();
-        slide.setPower(.2);
+        slide.setPower(-.2);
         while(true){
             try{Thread.sleep(50);} catch (Exception e){}
             if(startPos == slide.getCurrentPosition()){
@@ -88,8 +89,12 @@ public class Hydra {
             }
         }
         slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slide.setTargetPosition(0);
+        slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //slide.setTargetPosition(0);
+        //slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setPower(0.0);
+        slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     public void moveToAprilTag(Telemetry telemetry, Hydra hydra){

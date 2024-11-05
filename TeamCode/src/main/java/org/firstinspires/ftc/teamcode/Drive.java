@@ -163,15 +163,21 @@ public class Drive extends LinearOpMode {
                 turning=false;
             }
 
-            slidePos = slidePos + (int)(gamepad2.left_stick_y * 10);
+           // slidePos = slidePos + (int)(-gamepad2.left_stick_y * 10);
 
-            if(slidePos < 0){
-                slidePos = 0;
-            } else if (slidePos > 1000) {
-                slidePos = 1000;
+            double power = -gamepad2.left_stick_y;
+            slidePos = hydra.slide.getCurrentPosition();
+            if(slidePos < 0 && power < 0){
+                     power = 0;
+            } else if (slidePos > 2000 && power > 0)  {
+                power = 0;
+            } else if (slidePos < 750 && power < 0) {
+                power = Math.min(-0.1, power * slidePos/750.0);
+
             }
+            hydra.slide.setPower(power);
 
-            hydra.slide.setTargetPosition(slidePos);
+           // hydra.slide.setTargetPosition(slidePos);
 
             orientation = imu.getRobotYawPitchRollAngles();
             telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
