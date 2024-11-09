@@ -29,6 +29,7 @@ public class Hydra {
     public DcMotor br;
     public DcMotor[] motors;
     public DcMotor slide;
+    public DcMotor slideTurner;
     public Servo toppos,middlepos,bottompos;
 
 
@@ -40,6 +41,7 @@ public class Hydra {
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
         slide = hardwareMap.get(DcMotor.class, "slide");
+        slideTurner = hardwareMap.get(DcMotor.class, "slideTurner");
         toppos = hardwareMap.get(Servo.class,"toppos");
         middlepos = hardwareMap.get(Servo.class,"middlepos");
         bottompos = hardwareMap.get(Servo.class,"bottompos");
