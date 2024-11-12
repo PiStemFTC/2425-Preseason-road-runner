@@ -38,6 +38,7 @@ public class Drive extends LinearOpMode {
     double heading;
     double lastHeading;
     double changeInHeading;
+    float pivotTgt = 0;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -151,7 +152,7 @@ public class Drive extends LinearOpMode {
             slidePos = hydra.slide.getCurrentPosition();
             if (slidePos < 0 && power < 0) {
                 power = 0;
-            } else if (slidePos > 2000 && power > 0) {
+            } else if (slidePos > 3000 && power > 0) {
                 power = 0;
             } else if (slidePos < 750 && power < 0) {
                 power = Math.min(-0.1, power * slidePos / 750.0);
@@ -159,9 +160,16 @@ public class Drive extends LinearOpMode {
             }
             hydra.slide.setPower(power);
 
-                double power1 = gamepad2.left_stick_x;
-                hydra.slideTurner.setPower(power1);
+            pivotTgt += gamepad2.left_stick_x * 2;
+            pivotTgt = hydra.clamp(pivotTgt,0,500);
+            float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
+            pivotError = hydra.clamp(pivotError/100.0f,-1.0f,1.0f);
 
+            hydra.slideTurner.setPower(pivotError);
+              //  double power1 = gamepad2.left_stick_x;
+              //
+
+            //hydra.slideTurner.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
 
                 orientation = imu.getRobotYawPitchRollAngles();
@@ -171,7 +179,8 @@ public class Drive extends LinearOpMode {
                 telemetry.addData("targetHeading", targetHeading);
                 telemetry.addData("dT", dT);
                 telemetry.addData("changeInHeading", changeInHeading);
-                telemetry.addData("slide position", hydra.slide.getCurrentPosition());
+                telemetry.addData("pivot tgt", pivotTgt);
+            telemetry.addData("pivotError", pivotError);
                 if (dT > 0) {
                     telemetry.addData("radians/ms", changeInHeading / dT);
                 }

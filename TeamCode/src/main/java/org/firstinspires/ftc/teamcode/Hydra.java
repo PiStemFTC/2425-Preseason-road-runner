@@ -51,12 +51,23 @@ public class Hydra {
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         slide.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        slideTurner.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideTurner.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideTurner.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideTurner.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motors = new DcMotor[]{fl,fr,bl,br};
 
     }
-
+    //def clamp(value, min_value, max_value):
+     //       if value >  max_value: return max_value
+   // elif value < min_value: return min_value
+   // return value
+    public float clamp (float value, float min_value, float max_value){
+        if ( value > max_value) return max_value;
+        else if (value < min_value)return min_value;
+        return value;
+    }
     public void forward(float p){
         for(int i = 0; i < 4; i++){
             motors[i].setPower(p);
