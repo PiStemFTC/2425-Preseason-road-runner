@@ -22,6 +22,8 @@ import java.util.List;
 
 public class Hydra {
 
+    public final float TicksPerInch = 5000/15.5f;
+
     private Limelight3A limelight;
     public DcMotor fl;
     public DcMotor fr;
@@ -55,6 +57,18 @@ public class Hydra {
 
         motors = new DcMotor[]{fl,fr,bl,br};
 
+    }
+
+    public void enableBraking(){
+        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public float distance(long pos, long pos2){
+        long ticks = pos2 - pos;
+        return ticks/TicksPerInch;
     }
 
     public void forward(float p){
