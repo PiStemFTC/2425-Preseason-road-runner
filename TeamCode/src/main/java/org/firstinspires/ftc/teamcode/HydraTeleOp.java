@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class HydraTeleOp extends LinearOpMode {
     @Override
     public void runOpMode(){
-        Hydra hydra = new Hydra();
+        Hydra hydra = new Hydra(telemetry);
         hydra.initializeHardware(hardwareMap);
         waitForStart();
         //hydra.forward(0.1f);

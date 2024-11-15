@@ -59,7 +59,7 @@ public class Drive extends LinearOpMode {
         //MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         // TODO XXX Create an instance of Hydra (Hydra.java)
-        Hydra hydra = new Hydra();
+        Hydra hydra = new Hydra(telemetry);
         hydra.initializeHardware(hardwareMap);
 
         // TODO XXX Use the motors mapped by Hydra

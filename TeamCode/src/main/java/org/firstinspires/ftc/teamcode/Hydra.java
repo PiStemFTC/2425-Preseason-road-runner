@@ -7,16 +7,20 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
@@ -33,8 +37,31 @@ public class Hydra {
     public DcMotor slide;
     public DcMotor slideTurner;
     public Servo toppos,middlepos,bottompos;
+    private IMU imu;
+    private double targetHeading = 0;
+    double lastHeading = 0;
+    double changeInHeading;
+    float targetDistance = 0;
+    long startTicks = 0;
+    boolean fwdMoving = false;
+    boolean turning = false;
 
 
+    final double[] forwardDirection = {
+            1, 1,
+            1, 1};
+    final double[] turnDirection = {
+            -1, 1,
+            -1, 1};
+    final double[] strafeDirection = {
+            -1, 1,
+            1, -1};
+
+    private Telemetry telemetry;
+
+    public Hydra(Telemetry telemetry){
+        this.telemetry = telemetry;
+    }
 
     public void initializeHardware(HardwareMap hardwareMap){
         //limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -60,12 +87,75 @@ public class Hydra {
 
         motors = new DcMotor[]{fl,fr,bl,br};
 
+        imu = hardwareMap.get(IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
+        imu.resetYaw();
+
     }
+
+    public void update(){
+        double hdgError = 0;
+        float fwdError = 0;
+        double heading = getHeading();
+        hdgError = circleDiff(targetHeading, heading);
+        double[] powers = {0, 0, 0, 0};
+
+        if(fwdMoving) {
+            long pos2 = fl.getCurrentPosition();
+            float inches = distance(startTicks, pos2);
+            fwdError = targetDistance - inches;
+            fwdError = fwdError / targetDistance;
+        }
+
+        if(fwdError < 0.09){
+            fwdMoving = false;
+        }
+
+        if(hdgError < 0.09){
+            turning = false;
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            powers[i] = clamp(forwardDirection[i] * fwdError, -0.5, 0.5);
+            powers[i] += turnDirection[i] * 0;
+            powers[i] += strafeDirection[i] * 0;
+            powers[i] += clamp(turnDirection[i] * -hdgError, -0.5, 0.5);
+        }
+        for (int i = 0; i < 4; ++i) {
+            motors[i].setPower(powers[i]);
+        }
+
+        telemetry.addData("error", fwdError);
+    }
+
+    private double circleDiff(double a1, double a2) {
+        if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
+            return -((Math.PI - a2) + (a1 + Math.PI));
+        else if (a1 > a2 && a1 > 0 && a2 < 0 && Math.abs(a2 - a1) > Math.PI)
+            return (Math.PI - a1) + (a2 + Math.PI);
+        else
+            return a2 - a1;
+    }
+
+    public double getHeading(){
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+       return orientation.getYaw(AngleUnit.RADIANS);
+    }
+
     //def clamp(value, min_value, max_value):
      //       if value >  max_value: return max_value
    // elif value < min_value: return min_value
    // return value
+
     public float clamp (float value, float min_value, float max_value){
+        if ( value > max_value) return max_value;
+        else if (value < min_value)return min_value;
+        return value;
+    }
+
+    public double clamp (double value, double min_value, double max_value){
         if ( value > max_value) return max_value;
         else if (value < min_value)return min_value;
         return value;
@@ -98,6 +188,21 @@ public class Hydra {
 
     public void turn(double p){
         turn((float)p);
+    }
+
+    public void turnTo(double hdg){
+        turning = true;
+        targetHeading = hdg;
+    }
+
+    public void forwardBy(float inches){
+        fwdMoving = true;
+        targetDistance = inches;
+        startTicks = fl.getCurrentPosition();
+    }
+
+    public boolean isMoving(){
+        return fwdMoving || turning;
     }
 
     public void stop(){
