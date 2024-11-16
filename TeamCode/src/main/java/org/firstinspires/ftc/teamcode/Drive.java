@@ -70,8 +70,8 @@ public class Drive extends LinearOpMode {
         //   - part of the initialization will be assigning the orientation of the Control Hub
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
         imu.resetYaw();
 
         telemetry.addLine("zeroing slide");
@@ -160,8 +160,8 @@ public class Drive extends LinearOpMode {
             }
             hydra.slide.setPower(power);
 
-            pivotTgt += gamepad2.left_stick_x * 2;
-            pivotTgt = hydra.clamp(pivotTgt,0,500);
+            pivotTgt += gamepad2.left_stick_x * 25;
+            pivotTgt = hydra.clamp(pivotTgt,0,1500);
             float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
             pivotError = hydra.clamp(pivotError/100.0f,-1.0f,1.0f);
 
