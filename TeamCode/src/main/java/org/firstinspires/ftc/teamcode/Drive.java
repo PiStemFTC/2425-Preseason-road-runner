@@ -39,6 +39,7 @@ public class Drive extends LinearOpMode {
     double lastHeading;
     double changeInHeading;
     float pivotTgt = 0;
+    public DcMotor lA;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -160,15 +161,16 @@ public class Drive extends LinearOpMode {
             }
             hydra.slide.setPower(power);
 
-            pivotTgt += gamepad2.left_stick_x * 25;
+            pivotTgt += gamepad2.right_stick_y * 25;
             pivotTgt = hydra.clamp(pivotTgt,0,1500);
             float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
             pivotError = hydra.clamp(pivotError/100.0f,-1.0f,1.0f);
 
             hydra.slideTurner.setPower(pivotError);
               //  double power1 = gamepad2.left_stick_x;
-              //
-
+            lA = hardwareMap.get(DcMotor.class, "lA");
+            power = gamepad2.left_stick_y;
+            lA.setPower(power);
             //hydra.slideTurner.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
 
