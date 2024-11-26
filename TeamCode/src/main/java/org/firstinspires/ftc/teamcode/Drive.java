@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 //import com.acmerobotics.dashboard.FtcDashboard;
 //import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 //import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 @TeleOp(name="Drive", group="TeleOp")
@@ -64,7 +66,12 @@ public class Drive extends LinearOpMode {
         hydra.initializeHardware(hardwareMap);
 
         // TODO XXX Use the motors mapped by Hydra
+        hydra.limelight.pipelineSwitch(0);
 
+        /*
+         * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
+         */
+        hydra.limelight.start();
 
         // TODO XXX Initialize the IMU;
         // * Create an IMU (look up how to accomplish this)
@@ -86,6 +93,7 @@ public class Drive extends LinearOpMode {
 
 
         while (opModeIsActive()) {
+            monkeyBuisness(hydra);
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
             dT = now - lastTime;
@@ -189,4 +197,17 @@ public class Drive extends LinearOpMode {
                 telemetry.update();
         }
     }
+        private void monkeyBuisness(Hydra hydra) {
+            LLResult result = hydra.limelight.getLatestResult();
+
+            if (result.isValid()) {
+                Pose3D botpose = result.getBotpose();
+                telemetry.addData("tx", result.getTx());
+                telemetry.addData("txnc", result.getTxNC());
+                telemetry.addData("ty", result.getTy());
+                telemetry.addData("tync", result.getTyNC());
+
+                telemetry.addData("Botpose", botpose.toString());
+            }
+        }
 }
