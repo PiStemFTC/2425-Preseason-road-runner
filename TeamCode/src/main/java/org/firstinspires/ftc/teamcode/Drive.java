@@ -84,14 +84,18 @@ public class Drive extends LinearOpMode {
         waitForStart();
         imu.resetYaw();
 
-
+        boolean grab = false;
         while (opModeIsActive()) {
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
             dT = now - lastTime;
             lastTime = now;
 
-            hydra.toppos.setPosition(gamepad2.a ? 1.0 : 0.0);
+
+            if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) grab = true;
+            else if (gamepad2.right_bumper || gamepad2.left_bumper) grab = false;
+
+            hydra.toppos.setPosition((gamepad2.a || grab) ? 0.9 : 0.0);
             hydra.middlepos.setPosition((gamepad2.right_stick_x / 2.0) + 0.5);
             hydra.bottompos.setPosition(gamepad2.b ? 1.0 : 0.0);
 
@@ -103,7 +107,9 @@ public class Drive extends LinearOpMode {
             changeInHeading = circleDiff(lastHeading, heading);
             lastHeading = heading;
 
-            double error = targetHeading - heading;
+            double error = circleDiff(heading,targetHeading);
+            //double error = targetHeading - heading;
+            /*
             double altError = 0;
             if (heading < targetHeading) {
                 altError = -((Math.PI - targetHeading) + (Math.PI + heading));
@@ -114,6 +120,7 @@ public class Drive extends LinearOpMode {
             if (Math.abs(altError) < Math.abs(error)) {
                 error = altError;
             }
+             */
             double[] powers = {0, 0, 0, 0};
             for (int i = 0; i < 4; ++i) {
                 powers[i] = forwardDirection[i] * -gamepad1.left_stick_y;
@@ -153,7 +160,7 @@ public class Drive extends LinearOpMode {
             slidePos = hydra.slide.getCurrentPosition();
             if (slidePos < 0 && power < 0) {
                 power = 0;
-            } else if (slidePos > 3000 && power > 0) {
+            } else if (slidePos > 4000 && power > 0) {
                 power = 0;
             } else if (slidePos < 750 && power < 0) {
                 power = Math.min(-0.1, power * slidePos / 750.0);
@@ -169,7 +176,7 @@ public class Drive extends LinearOpMode {
             hydra.slideTurner.setPower(pivotError);
               //  double power1 = gamepad2.left_stick_x;
             lA = hardwareMap.get(DcMotor.class, "lA");
-            power = gamepad2.left_stick_y;
+            power = -gamepad2.left_stick_y;
             lA.setPower(power);
             //hydra.slideTurner.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
@@ -177,7 +184,7 @@ public class Drive extends LinearOpMode {
                 orientation = imu.getRobotYawPitchRollAngles();
                 telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
                 telemetry.addData("error", error);
-                telemetry.addData("altError", altError);
+                //telemetry.addData("altError", altError);
                 telemetry.addData("targetHeading", targetHeading);
                 telemetry.addData("dT", dT);
                 telemetry.addData("changeInHeading", changeInHeading);
