@@ -28,7 +28,7 @@ public class Hydra {
 
     public final float TicksPerInch = 5000/15.5f;
 
-    private Limelight3A limelight;
+    public Limelight3A limelight;
     public DcMotor fl;
     public DcMotor fr;
     public DcMotor bl;
@@ -64,7 +64,8 @@ public class Hydra {
     }
 
     public void initializeHardware(HardwareMap hardwareMap){
-        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         fl = hardwareMap.get(DcMotor.class, "fl");
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
