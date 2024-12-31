@@ -79,7 +79,7 @@ public class Drive extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
         imu.resetYaw();
 
         telemetry.addLine("zeroing slide");
@@ -93,7 +93,7 @@ public class Drive extends LinearOpMode {
 
         boolean grab = false;
         while (opModeIsActive()) {
-            monkeyBuisness(hydra);
+            //monkeyBuisness(hydra);
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
             dT = now - lastTime;
@@ -103,7 +103,7 @@ public class Drive extends LinearOpMode {
             if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) grab = true;
             else if (gamepad2.right_bumper || gamepad2.left_bumper) grab = false;
 
-            hydra.toppos.setPosition((gamepad2.a || grab) ? 0.9 : 0.0);
+            hydra.toppos.setPosition((gamepad2.a || grab) ? 0.25 : 0.0);
             hydra.middlepos.setPosition((gamepad2.right_stick_x / 2.0) + 0.5);
             hydra.bottompos.setPosition(gamepad2.b ? 1.0 : 0.0);
 
@@ -184,7 +184,7 @@ public class Drive extends LinearOpMode {
             hydra.slideTurner.setPower(pivotError);
               //  double power1 = gamepad2.left_stick_x;
             lA = hardwareMap.get(DcMotor.class, "lA");
-            power = -gamepad2.left_stick_y;
+            power = gamepad2.left_stick_y;
             lA.setPower(power);
             //hydra.slideTurner.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
@@ -204,7 +204,7 @@ public class Drive extends LinearOpMode {
                 telemetry.update();
         }
     }
-        private void monkeyBuisness(Hydra hydra) {
+       /* private void monkeyBuisness(Hydra hydra) {
             LLResult result = hydra.limelight.getLatestResult();
 
             if (result.isValid()) {
@@ -216,5 +216,7 @@ public class Drive extends LinearOpMode {
 
                 telemetry.addData("Botpose", botpose.toString());
             }
-        }
+
+
+        } */
 }
