@@ -78,8 +78,8 @@ public class Drive extends LinearOpMode {
         //   - part of the initialization will be assigning the orientation of the Control Hub
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
         imu.resetYaw();
 
         telemetry.addLine("zeroing slide");
