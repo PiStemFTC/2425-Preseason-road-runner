@@ -41,6 +41,7 @@ public class Drive extends LinearOpMode {
     double lastHeading;
     double changeInHeading;
     float pivotTgt = 0;
+    float slideTgt = 0;
     public DcMotor lA;
 
     private double circleDiff(double a1, double a2) {
@@ -79,7 +80,7 @@ public class Drive extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)));
         imu.resetYaw();
 
         telemetry.addLine("zeroing slide");
@@ -164,30 +165,69 @@ public class Drive extends LinearOpMode {
 
             // slidePos = slidePos + (int)(-gamepad2.left_stick_y * 10);
 
-            double power = -gamepad2.left_stick_y;
-            slidePos = hydra.slide.getCurrentPosition();
-            if (slidePos < 0 && power < 0) {
-                power = 0;
-            } else if (slidePos > 4000 && power > 0) {
-                power = 0;
-            } else if (slidePos < 750 && power < 0) {
-                power = Math.min(-0.1, power * slidePos / 750.0);
+//           double power = -gamepad2.left_stick_y;
+//            slidePos = hydra.slide.getCurrentPosition();
+//            if (slidePos < 0 && power < 0) {
+//                power = 0;
+//            } else if (slidePos > 4500 && power > 0) {
+//                power = 0;
+//            } else if (slidePos < 750 && power < 0) {
+//                power = Math.min(-0.1, power * slidePos / 750.0);
+//
+//            }
+//            hydra.slide.setPower(power);
+//            if (gamepad2.x) {
+//                hydra.slide.setPower(.5);
+//                hydra.slide.setTargetPosition(50);
+//
+//                // hydra.slideTurner.setPower(300);
+//            }
+            slideTgt += -gamepad2.left_stick_y * 25;
+            if (gamepad2.x){
+                slideTgt = 2050;
+                pivotTgt = 400;
+            } else if (gamepad2.y) {
+                slideTgt = 4500;
+                pivotTgt = 1230;
+            } else if (gamepad2.b) {
+                slideTgt = 500;
+                pivotTgt = 500;
 
             }
-            hydra.slide.setPower(power);
+            slideTgt = hydra.clamp(slideTgt,0,4500);
+            slidePos = hydra.slide.getCurrentPosition();
+            float slideError = slideTgt - slidePos;
+            slideError = hydra.clamp(slideError/100.0f,-1.0f,1.0f);
+            hydra.slide.setPower(slideError);
 
-            pivotTgt += gamepad2.right_stick_y * 25;
+            pivotTgt += -gamepad2.right_stick_y * 25;
             pivotTgt = hydra.clamp(pivotTgt,0,1500);
             float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
-            pivotError = hydra.clamp(pivotError/100.0f,-1.0f,1.0f);
+
+
+            pivotError = hydra.clamp(pivotError/200.0f,-0.85f,0.85f);
+
+
+            if (pivotError < 0) {
+                // thank you steven woufrum
+                float factor = (1500.0f/hydra.slideTurner.getCurrentPosition());
+                factor = factor*factor;
+                if (factor == 0) {
+                    factor = 100.0f;
+                }
+                pivotError = pivotError/factor;
+            }
 
             hydra.slideTurner.setPower(pivotError);
               //  double power1 = gamepad2.left_stick_x;
+
             lA = hardwareMap.get(DcMotor.class, "lA");
-            power = -gamepad2.left_stick_y;
-            lA.setPower(power);
+           // power = -gamepad2.left_stick_y;
+          //  lA.setPower(power);
             //hydra.slideTurner.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
+
+
 
                 orientation = imu.getRobotYawPitchRollAngles();
                 telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
@@ -197,7 +237,10 @@ public class Drive extends LinearOpMode {
                 telemetry.addData("dT", dT);
                 telemetry.addData("changeInHeading", changeInHeading);
                 telemetry.addData("pivot tgt", pivotTgt);
-            telemetry.addData("pivotError", pivotError);
+                telemetry.addData("pivotError", pivotError);
+                telemetry.addData("slidePos",hydra.slide.getCurrentPosition());
+                telemetry.addData("slidedeg",hydra.slideTurner.getCurrentPosition());
+
                 if (dT > 0) {
                     telemetry.addData("radians/ms", changeInHeading / dT);
                 }
