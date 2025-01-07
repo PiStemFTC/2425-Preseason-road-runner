@@ -58,8 +58,10 @@ public class Hydra {
             1, -1};
 
     private Telemetry telemetry;
+    public ArmController arm;
 
     public Hydra(Telemetry telemetry){
+        arm = new ArmController(this);
         this.telemetry = telemetry;
     }
 
@@ -229,7 +231,24 @@ public class Hydra {
         slide.setPower(0.0);
         slide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // initalis pivet
+        startPos = slideTurner.getCurrentPosition();
+        slideTurner.setPower(-.5);
+        while(true){
+            try{Thread.sleep(50);} catch (Exception e){}
+            if(startPos == slideTurner.getCurrentPosition()){
+                break;
+            } else{
+                startPos = slideTurner.getCurrentPosition();
+            }
+        }
+        slideTurner.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideTurner.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideTurner.setPower(0.0);
+        slideTurner.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
+
 
     public void moveToAprilTag(Telemetry telemetry, Hydra hydra){
         telemetry.setMsTransmissionInterval(11);

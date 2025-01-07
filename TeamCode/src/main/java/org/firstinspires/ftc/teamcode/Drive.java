@@ -182,44 +182,51 @@ public class Drive extends LinearOpMode {
 //
 //                // hydra.slideTurner.setPower(300);
 //            }
-            slideTgt += -gamepad2.left_stick_y * 25;
-            if (gamepad2.x){
-                slideTgt = 2050;
-                pivotTgt = 400;
-            } else if (gamepad2.y) {
-                slideTgt = 4500;
-                pivotTgt = 1230;
-            } else if (gamepad2.b) {
-                slideTgt = 500;
-                pivotTgt = 500;
+            float pivotError = 0;
+            hydra.arm.extendSlide(-gamepad2.left_stick_y * 25);
+            hydra.arm.rotate(-gamepad2.right_stick_y * 25);
+            hydra.arm.update();
+            if(false) {
+                slideTgt += -gamepad2.left_stick_y * 25;
+                if (gamepad2.x) {
+                    slideTgt = 2050;
+                    pivotTgt = 400;
+                } else if (gamepad2.y) {
+                    slideTgt = 4500;
+                    pivotTgt = 1230;
+                } else if (gamepad2.b) {
+                    slideTgt = 500;
+                    pivotTgt = 500;
 
-            }
-            slideTgt = hydra.clamp(slideTgt,0,4500);
-            slidePos = hydra.slide.getCurrentPosition();
-            float slideError = slideTgt - slidePos;
-            slideError = hydra.clamp(slideError/100.0f,-1.0f,1.0f);
-            hydra.slide.setPower(slideError);
-
-            pivotTgt += -gamepad2.right_stick_y * 25;
-            pivotTgt = hydra.clamp(pivotTgt,0,1500);
-            float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
-
-
-            pivotError = hydra.clamp(pivotError/200.0f,-0.85f,0.85f);
-
-
-            if (pivotError < 0) {
-                // thank you steven woufrum
-                float factor = (1500.0f/hydra.slideTurner.getCurrentPosition());
-                factor = factor*factor;
-                if (factor == 0) {
-                    factor = 100.0f;
                 }
-                pivotError = pivotError/factor;
-            }
+                slideTgt = hydra.clamp(slideTgt, 0, 4500);
+                slidePos = hydra.slide.getCurrentPosition();
+                float slideError = slideTgt - slidePos;
+                slideError = hydra.clamp(slideError / 100.0f, -1.0f, 1.0f);
+                hydra.slide.setPower(slideError);
 
-            hydra.slideTurner.setPower(pivotError);
-              //  double power1 = gamepad2.left_stick_x;
+                pivotTgt += -gamepad2.right_stick_y * 25;
+                pivotTgt = hydra.clamp(pivotTgt, 0, 1500);
+                 pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
+
+
+                pivotError = hydra.clamp(pivotError / 200.0f, -0.85f, 0.85f);
+
+
+                if (pivotError < 0) {
+                    // thank you steven woufrum
+                    float factor = (1500.0f / hydra.slideTurner.getCurrentPosition());
+                    factor = factor * factor;
+                    if (factor == 0) {
+                        factor = 100.0f;
+                    }
+                    factor = 1.0f;
+                    pivotError = pivotError / factor;
+                }
+
+                hydra.slideTurner.setPower(pivotError);
+                //  double power1 = gamepad2.left_stick_x;
+            }
 
             // LA stands for linear actuator.
             lA = hardwareMap.get(DcMotor.class, "lA");
