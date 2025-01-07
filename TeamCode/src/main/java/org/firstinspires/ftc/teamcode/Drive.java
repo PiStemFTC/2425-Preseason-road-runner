@@ -132,9 +132,9 @@ public class Drive extends LinearOpMode {
              */
             double[] powers = {0, 0, 0, 0};
             for (int i = 0; i < 4; ++i) {
-                powers[i] = forwardDirection[i] * -gamepad1.left_stick_y;
-                powers[i] += turnDirection[i] * -gamepad1.right_stick_x;
-                powers[i] += strafeDirection[i] * -gamepad1.left_stick_x;
+                powers[i] = forwardDirection[i] * -Math.pow(gamepad1.left_stick_y,3);
+                powers[i] += turnDirection[i] * -Math.pow(gamepad1.right_stick_x,3);
+                powers[i] += strafeDirection[i] * -Math.pow(gamepad1.left_stick_x,3);
                 powers[i] += turnDirection[i] * error;
             }
             for (int i = 0; i < 4; ++i) {
@@ -221,6 +221,7 @@ public class Drive extends LinearOpMode {
             hydra.slideTurner.setPower(pivotError);
               //  double power1 = gamepad2.left_stick_x;
 
+            // LA stands for linear actuator.
             lA = hardwareMap.get(DcMotor.class, "lA");
            // power = -gamepad2.left_stick_y;
           //  lA.setPower(power);
