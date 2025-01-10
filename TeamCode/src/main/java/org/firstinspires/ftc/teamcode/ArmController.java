@@ -24,23 +24,24 @@ public class ArmController {
     }
     public void moveToHigh(){
         if (state!= State_Inital) return;
-        slideTgt = 4500;
-        pivotTgt = 1230;
-        state = State_MoveHigh;
+        slideTgt = 350;
+        nextSlideTgt = 4500;
+        nextPivotTgt = 1500;
+        state = State_StowSlide;
     }
     public void moveToTravel(){
         if (state!= State_Inital) return;
-        slideTgt = 500;
+        slideTgt = 300;
         state= State_StowSlide;
-        nextSlideTgt = 500;
+        nextSlideTgt = 300;
         nextPivotTgt = 500;
     }
     public void moveToPick(){
         if (state!= State_Inital) return;
-        slideTgt = 500;
+        slideTgt = 350;
         state= State_StowSlide;
         nextSlideTgt = 2050;
-        nextPivotTgt = 400;
+        nextPivotTgt = 550;
     }
     public void update(){
         if(state == State_Inital){
@@ -50,8 +51,8 @@ public class ArmController {
             float slidepos = hydra.slide.getCurrentPosition();
             if (slidepos == 0)
                 slidepos = 0.01f;
-             if( Math.abs(slideTgt/slidepos)< 0.05){
-                // were considering the task complete.
+             if( Math.abs((slideTgt-slidepos)/slidepos)< 0.03){
+                // we're considering the task complete.
                  state = State_Rotate;
                  pivotTgt = nextPivotTgt;
              }
@@ -60,9 +61,10 @@ public class ArmController {
             float pivotpos = hydra.slideTurner.getCurrentPosition();
             if (pivotpos == 0)
                 pivotpos = 0.01f;
-            if (Math.abs(pivotTgt / pivotpos) < 0.05) {
+            if (Math.abs((pivotTgt-pivotpos) / pivotpos) < 0.03) {
                 // were considering the task complete.
                 state = State_Inital;
+                slideTgt = nextSlideTgt;
             }
         }
         else if (state == State_MoveHigh) {
@@ -70,13 +72,13 @@ public class ArmController {
                 float slidepos = hydra.slide.getCurrentPosition();
                 if (slidepos == 0)
                     slidepos = 0.01f;
-                if( Math.abs(slideTgt/slidepos)< 0.05) {
+                if( Math.abs((slideTgt-slidepos)/slidepos)< 0.03) {
                slideComplete = true;
                 }
                 float pivotpos = hydra.slideTurner.getCurrentPosition();
                 if (pivotpos == 0)
                     pivotpos = 0.01f;
-                if(slideComplete && Math.abs(pivotTgt/pivotpos)< 0.05){
+                if(slideComplete && Math.abs((pivotTgt-pivotpos)/pivotpos)< 0.03){
                     // were considering the task complete.
                     state = State_Inital;
                     }
@@ -90,7 +92,7 @@ public class ArmController {
         //pivotTgt += -gamepad2.right_stick_y * 25;
         pivotTgt = hydra.clamp(pivotTgt,0,1500);
         float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
-        pivotError = hydra.clamp(pivotError/200.0f,-0.85f,0.85f);
+        pivotError = hydra.clamp(pivotError/200.0f,-0.5f,0.7f);
         hydra.slideTurner.setPower(pivotError);
     }
 }

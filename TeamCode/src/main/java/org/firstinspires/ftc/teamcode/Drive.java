@@ -185,6 +185,15 @@ public class Drive extends LinearOpMode {
             float pivotError = 0;
             hydra.arm.extendSlide(-gamepad2.left_stick_y * 25);
             hydra.arm.rotate(-gamepad2.right_stick_y * 25);
+            if(gamepad2.b) {
+                hydra.arm.moveToTravel();
+            }
+            if(gamepad2.x) {
+                hydra.arm.moveToPick();
+            }
+            if(gamepad2.y) {
+                hydra.arm.moveToHigh();
+            }
             hydra.arm.update();
             if(false) {
                 slideTgt += -gamepad2.left_stick_y * 25;
@@ -248,7 +257,7 @@ public class Drive extends LinearOpMode {
                 telemetry.addData("pivotError", pivotError);
                 telemetry.addData("slidePos",hydra.slide.getCurrentPosition());
                 telemetry.addData("slidedeg",hydra.slideTurner.getCurrentPosition());
-
+                telemetry.addData("state",hydra.arm.state);
                 if (dT > 0) {
                     telemetry.addData("radians/ms", changeInHeading / dT);
                 }

@@ -233,7 +233,7 @@ public class Hydra {
 
         // initalis pivet
         startPos = slideTurner.getCurrentPosition();
-        slideTurner.setPower(-.5);
+        slideTurner.setPower(-.2);
         while(true){
             try{Thread.sleep(50);} catch (Exception e){}
             if(startPos == slideTurner.getCurrentPosition()){
