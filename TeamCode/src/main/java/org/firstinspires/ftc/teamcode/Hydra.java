@@ -77,7 +77,7 @@ public class Hydra {
         toppos = hardwareMap.get(Servo.class,"toppos");
         middlepos = hardwareMap.get(Servo.class,"middlepos");
         bottompos = hardwareMap.get(Servo.class,"bottompos");
-        toppos.setPosition(0.0);
+        closeClaw();
         middlepos.setPosition(0.5);
         bottompos.setPosition(0.5);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -129,7 +129,7 @@ public class Hydra {
         for (int i = 0; i < 4; ++i) {
             motors[i].setPower(powers[i]);
         }
-
+        arm.update();
         telemetry.addData("error", fwdError);
     }
 
@@ -210,6 +210,14 @@ public class Hydra {
 
     public void stop(){
         forward(0);
+    }
+
+    public void openClaw(){
+        toppos.setPosition(0.66);
+    }
+
+    public void closeClaw(){
+        toppos.setPosition(0.9);
     }
 
     public void autoHome(){

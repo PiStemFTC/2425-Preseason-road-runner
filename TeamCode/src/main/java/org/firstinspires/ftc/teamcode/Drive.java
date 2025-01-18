@@ -92,7 +92,7 @@ public class Drive extends LinearOpMode {
         waitForStart();
         imu.resetYaw();
 
-        boolean grab = false;
+        boolean grab = true;
         while (opModeIsActive()) {
             monkeyBuisness(hydra);
             now = System.currentTimeMillis();
@@ -104,7 +104,9 @@ public class Drive extends LinearOpMode {
             if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) grab = true;
             else if (gamepad2.right_bumper || gamepad2.left_bumper) grab = false;
 
-            hydra.toppos.setPosition((gamepad2.a || grab) ? 0.9 : 0.0);
+            if(grab) hydra.closeClaw();
+                else hydra.openClaw();
+            //hydra.toppos.setPosition((gamepad2.a || grab) ? 0.9 : 0.0);
             hydra.middlepos.setPosition((gamepad2.right_stick_x / 2.0) + 0.5);
             hydra.bottompos.setPosition(gamepad2.b ? 1.0 : 0.0);
 

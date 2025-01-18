@@ -43,6 +43,11 @@ public class ArmController {
         nextSlideTgt = 2050;
         nextPivotTgt = 600;
     }
+
+    public boolean isMoving(){
+        return state != State_Inital;
+    }
+
     public void update(){
         if(state == State_Inital){
 
