@@ -41,7 +41,7 @@ public class ArmController {
         slideTgt = 350;
         state= State_StowSlide;
         nextSlideTgt = 2050;
-        nextPivotTgt = 550;
+        nextPivotTgt = 600;
     }
     public void update(){
         if(state == State_Inital){
