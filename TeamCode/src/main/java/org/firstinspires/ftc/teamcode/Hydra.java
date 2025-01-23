@@ -83,7 +83,7 @@ public class Hydra {
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         slide.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideTurner.setDirection(DcMotorSimple.Direction.REVERSE);
+       // slideTurner.setDirection(DcMotorSimple.Direction.REVERSE);
         slideTurner.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideTurner.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideTurner.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

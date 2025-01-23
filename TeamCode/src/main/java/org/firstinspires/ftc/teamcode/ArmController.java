@@ -26,7 +26,7 @@ public class ArmController {
         if (state!= State_Inital) return;
         slideTgt = 350;
         nextSlideTgt = 4500;
-        nextPivotTgt = 1500;
+        nextPivotTgt = 1100;
         state = State_StowSlide;
     }
     public void moveToTravel(){
@@ -41,7 +41,7 @@ public class ArmController {
         slideTgt = 350;
         state= State_StowSlide;
         nextSlideTgt = 2050;
-        nextPivotTgt = 600;
+        nextPivotTgt = 400;
     }
 
     public boolean isMoving(){
@@ -95,7 +95,7 @@ public class ArmController {
         hydra.slide.setPower(slideError);
 
         //pivotTgt += -gamepad2.right_stick_y * 25;
-        pivotTgt = hydra.clamp(pivotTgt,0,1500);
+        pivotTgt = hydra.clamp(pivotTgt,0,1100);
         float pivotError = pivotTgt - hydra.slideTurner.getCurrentPosition();
         pivotError = hydra.clamp(pivotError/200.0f,-0.5f,0.7f);
         hydra.slideTurner.setPower(pivotError);
