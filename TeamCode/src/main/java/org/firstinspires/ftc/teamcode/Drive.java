@@ -94,7 +94,7 @@ public class Drive extends LinearOpMode {
 
         boolean grab = true;
         while (opModeIsActive()) {
-            monkeyBuisness(hydra);
+            //monkeyBuisness(hydra);
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
             dT = now - lastTime;
@@ -185,8 +185,8 @@ public class Drive extends LinearOpMode {
 //                // hydra.slideTurner.setPower(300);
 //            }
             float pivotError = 0;
-            hydra.arm.extendSlide(-gamepad2.left_stick_y * 12.5f);
-            hydra.arm.rotate(-gamepad2.right_stick_y * 25);
+            hydra.arm.extendSlide(-gamepad2.left_stick_y * 25);
+            hydra.arm.rotate(-gamepad2.right_stick_y * 12.5f);
             if(gamepad2.b) {
                 hydra.arm.moveToTravel();
             }
