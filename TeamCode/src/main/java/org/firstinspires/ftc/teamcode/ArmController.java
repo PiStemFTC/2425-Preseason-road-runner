@@ -45,7 +45,20 @@ public class ArmController {
     }
 
     public boolean isMoving(){
-        return state != State_Inital;
+        float slidepos = hydra.slide.getCurrentPosition();
+        if(state == State_Inital) {
+
+            if (Math.abs((slideTgt - slidepos) / slidepos) < 0.03) {
+                //slide is near enough to position we can assume its not moving
+                return false;
+            } else {
+                //slide position is not near its target, assume movement
+                return true;
+            }
+        } else{
+            //isMoving = true
+            return true;
+        }
     }
 
     public void update(){
