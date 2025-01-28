@@ -109,7 +109,7 @@ public class Hydra {
             long pos2 = fl.getCurrentPosition();
             float inches = distance(startTicks, pos2);
             fwdError = targetDistance - inches;
-            fwdError = fwdError / targetDistance;
+            fwdError = fwdError / Math.abs(targetDistance);
         }
 
         if(Math.abs(fwdError) < 0.09){
