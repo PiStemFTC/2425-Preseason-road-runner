@@ -4,10 +4,15 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class HydraController {
+    private Hydra hydra;
     public enum State {
         Idle,
         TaskRunning,
         Done;
+    }
+
+    public HydraController(Hydra hydra){
+        this.hydra = hydra;
     }
 
     private interface Task {
@@ -54,13 +59,106 @@ public class HydraController {
         public boolean isComplete(){
             return endTime <= System.currentTimeMillis();
         }
-        public String toString(){
-            return "Delay(" + delayMs + ")";
-        }
-    }
+     }
 
     public HydraController delay(long ms){
         tasks.add(new DelayTask(ms));
         return this;
+    }
+
+     private class ForwardByTask implements Task{
+        private float distance;
+        ForwardByTask(float inches){distance = inches;}
+        public void begin(){hydra.forwardBy(distance);}
+        public boolean isComplete(){
+            return !hydra.isMoving();
+        }
+     }
+
+    public HydraController forwardBy(float distance){
+        tasks.add(new ForwardByTask(distance));
+        return this;
+    }
+
+    private class TurnToTask implements Task{
+        private float heading;
+        TurnToTask(float radians){heading = radians;}
+        public void begin(){hydra.turnTo(heading);}
+        public boolean isComplete(){
+            return !hydra.isMoving();
+        }
+    }
+
+    public HydraController turnTo(float heading){
+        tasks.add(new TurnToTask(heading));
+        return this;
+    }
+
+    private class MoveArmToTravelTask implements Task{
+        public void begin(){hydra.arm.moveToTravel();}
+        public boolean isComplete(){
+            return !hydra.arm.isMoving();
+        }
+    }
+
+    public HydraController moveArmToTravel(){
+        tasks.add(new MoveArmToTravelTask());
+        return this;
+    }
+
+    private class MoveArmToHighTask implements Task{
+        public void begin(){hydra.arm.moveToHigh();}
+        public boolean isComplete(){
+            return !hydra.arm.isMoving();
+        }
+    }
+
+    public HydraController moveArmToHigh(){
+        tasks.add(new MoveArmToHighTask());
+        return this;
+    }
+
+    private class MoveArmToPickTask implements Task{
+        public void begin(){hydra.arm.moveToPick();}
+        public boolean isComplete(){
+            return !hydra.arm.isMoving();
+        }
+    }
+
+    public HydraController moveArmToPick(){
+        tasks.add(new MoveArmToPickTask());
+        return this;
+    }
+
+    private class OpenClawTask implements Task{
+        public void begin(){hydra.openClaw();}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController openClawTask(){
+        tasks.add(new OpenClawTask());
+        return this;
+    }
+
+    private class CloseClawTask implements Task{
+        public void begin(){hydra.openClaw();}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController closeClawTask(){
+        tasks.add(new CloseClawTask());
+        return this;
+    }
+
+    public String toString(){
+        if(currentTask != null) {
+            return state.toString() + ":" + currentTask.toString();
+        } else{
+            return state.toString();
+        }
     }
 }

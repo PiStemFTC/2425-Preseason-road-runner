@@ -112,7 +112,7 @@ public class Hydra {
             fwdError = fwdError / targetDistance;
         }
 
-        if(fwdError < 0.09){
+        if(Math.abs(fwdError) < 0.09){
             fwdMoving = false;
         }
 
