@@ -99,10 +99,13 @@ public class Drive extends LinearOpMode {
             //dT=Math.subtractExact(lastTime,now);
             dT = now - lastTime;
             lastTime = now;
+        if (gamepad1.y) {
+            hydra.autoHome();
+            hydra.arm.reset();
+        }
 
-
-            if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) grab = true;
-            else if (gamepad2.right_bumper || gamepad2.left_bumper) grab = false;
+            if (gamepad2.right_trigger > 0 || gamepad2.right_trigger > 0) grab = true;
+            else if (gamepad2.left_bumper || gamepad2.left_bumper) grab = false;
 
             if(grab) hydra.closeClaw();
                 else hydra.openClaw();

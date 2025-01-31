@@ -43,6 +43,9 @@ public class ArmController {
         nextSlideTgt = 2050;
         nextPivotTgt = 400;
     }
+    public void reset(){
+        state = State_Inital;
+    }
 
     public boolean isMoving(){
         float slidepos = hydra.slide.getCurrentPosition();
@@ -79,7 +82,7 @@ public class ArmController {
             float pivotpos = hydra.slideTurner.getCurrentPosition();
             if (pivotpos == 0)
                 pivotpos = 0.01f;
-            if (Math.abs((pivotTgt-pivotpos) / pivotpos) < 0.03) {
+            if (Math.abs((pivotTgt-pivotpos) / pivotpos) < 0.06) {
                 // were considering the task complete.
                 state = State_Inital;
                 slideTgt = nextSlideTgt;
