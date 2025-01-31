@@ -18,7 +18,7 @@ public class TestAuto extends LinearOpMode {
     waitForStart();
     hydraController.forwardBy(1)
             .turnTo((float)Math.PI/2)
-            .forwardBy(65)
+            .forwardBy(67)
             .turnTo((float)(3*Math.PI/4))
             .moveArmToHigh()
             .forwardBy(12)
