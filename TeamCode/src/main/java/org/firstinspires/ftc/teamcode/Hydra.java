@@ -45,6 +45,8 @@ public class Hydra {
     long startTicks = 0;
     boolean fwdMoving = false;
     boolean turning = false;
+    boolean strafeMoving = false;
+    float strafeTargetDistance = 0;
 
 
     final double[] forwardDirection = {
@@ -101,6 +103,7 @@ public class Hydra {
     public void update(){
         double hdgError = 0;
         float fwdError = 0;
+        float strafeError = 0;
         double heading = getHeading();
         hdgError = circleDiff(targetHeading, heading);
         double[] powers = {0, 0, 0, 0};
@@ -110,20 +113,29 @@ public class Hydra {
             float inches = distance(startTicks, pos2);
             fwdError = targetDistance - inches;
             fwdError = fwdError / Math.abs(targetDistance);
+        } else if(strafeMoving){
+            long pos2 = bl.getCurrentPosition();
+            float inches = distance(startTicks, pos2);
+            strafeError = strafeTargetDistance - inches;
+            strafeError = strafeError / Math.abs(strafeTargetDistance);
         }
 
         if(Math.abs(fwdError) < 0.09){
             fwdMoving = false;
         }
 
-        if(hdgError < 0.09){
+        if(Math.abs(strafeError) < 0.09){
+            strafeMoving = false;
+        }
+
+        if(Math.abs(hdgError) < 0.09){
             turning = false;
         }
 
         for (int i = 0; i < 4; ++i) {
-            powers[i] = clamp(forwardDirection[i] * fwdError, -0.5, 0.5);
+            powers[i] = clamp(forwardDirection[i] * fwdError, -0.35, 0.35);
             powers[i] += turnDirection[i] * 0;
-            powers[i] += strafeDirection[i] * 0;
+            powers[i] += clamp(strafeDirection[i] * -strafeError, -0.25, 0.25);
             powers[i] += clamp(turnDirection[i] * -hdgError, -0.5, 0.5);
         }
         for (int i = 0; i < 4; ++i) {
@@ -131,6 +143,9 @@ public class Hydra {
         }
         arm.update();
         telemetry.addData("error", fwdError);
+        telemetry.addData("position", bl.getCurrentPosition());
+        telemetry.addData("strafe error", strafeError);
+
     }
 
     private double circleDiff(double a1, double a2) {
@@ -204,8 +219,14 @@ public class Hydra {
         startTicks = fl.getCurrentPosition();
     }
 
+    public void strafeBy(float inches){
+        strafeMoving = true;
+        strafeTargetDistance = inches;
+        startTicks = bl.getCurrentPosition();
+    }
+
     public boolean isMoving(){
-        return fwdMoving || turning;
+        return fwdMoving || turning || strafeMoving;
     }
 
     public void stop(){
