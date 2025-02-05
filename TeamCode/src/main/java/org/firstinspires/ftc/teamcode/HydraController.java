@@ -66,6 +66,32 @@ public class HydraController {
         return this;
     }
 
+    private class WaitWhileMovingTask implements Task{
+        public void begin() {}
+        public boolean isComplete(){
+            return !hydra.isMoving();
+        }
+    }
+
+    public HydraController waitWhileMoving(){
+        tasks.add(new WaitWhileMovingTask());
+        return this;
+    }
+
+    private class StrafeByTask implements  Task{
+        private float distance;
+        StrafeByTask(float inches){distance = inches;}
+        public void begin(){hydra.strafeBy(distance);}
+        public boolean isComplete(){
+            return !hydra.isMoving();
+        }
+    }
+
+    public HydraController strafeBy(float distance){
+        tasks.add(new StrafeByTask(distance));
+        return this;
+    }
+
      private class ForwardByTask implements Task{
         private float distance;
         ForwardByTask(float inches){distance = inches;}
@@ -80,6 +106,20 @@ public class HydraController {
         return this;
     }
 
+    private class ForwardByAsyncTask implements Task{
+        private float distance;
+        ForwardByAsyncTask(float inches){distance = inches;}
+        public void begin(){hydra.forwardBy(distance);}
+        public boolean isComplete() {
+            return true;
+        }
+    }
+
+        public HydraController forwardByAsync(float distance){
+            tasks.add(new ForwardByAsyncTask(distance));
+            return this;
+        }
+
     private class TurnToTask implements Task{
         private float heading;
         TurnToTask(float radians){heading = radians;}
@@ -91,6 +131,34 @@ public class HydraController {
 
     public HydraController turnTo(float heading){
         tasks.add(new TurnToTask(heading));
+        return this;
+    }
+
+    private class TurnToAsyncTask implements Task{
+        private float heading;
+        TurnToAsyncTask(float radians){heading = radians;}
+        public void begin(){hydra.turnTo(heading);}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController turnToAsync(float heading){
+        tasks.add(new TurnToAsyncTask(heading));
+        return this;
+    }
+
+    private class RotateArmTask implements Task{
+        private float x;
+        RotateArmTask(float x){this.x = x;}
+        public void begin(){hydra.arm.rotate(x);}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController rotateArmBy(float x){
+        tasks.add(new RotateArmTask(x));
         return this;
     }
 
@@ -143,7 +211,7 @@ public class HydraController {
     }
 
     private class CloseClawTask implements Task{
-        public void begin(){hydra.openClaw();}
+        public void begin(){hydra.closeClaw();}
         public boolean isComplete(){
             return true;
         }
