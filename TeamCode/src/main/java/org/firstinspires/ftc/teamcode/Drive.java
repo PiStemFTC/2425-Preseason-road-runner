@@ -42,7 +42,8 @@ public class Drive extends LinearOpMode {
     double changeInHeading;
     float pivotTgt = 0;
     float slideTgt = 0;
-    public DcMotor lA;
+   // public DcMotor lA;
+   // public DcMotor lA2;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -67,12 +68,12 @@ public class Drive extends LinearOpMode {
         hydra.initializeHardware(hardwareMap);
 
         // TODO XXX Use the motors mapped by Hydra
-        hydra.limelight.pipelineSwitch(0);
+        //hydra.limelight.pipelineSwitch(0);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
          */
-        hydra.limelight.start();
+      //  hydra.limelight.start();
 
         // TODO XXX Initialize the IMU;
         // * Create an IMU (look up how to accomplish this)
@@ -243,10 +244,13 @@ public class Drive extends LinearOpMode {
             }
 
             // LA stands for linear actuator.
-            lA = hardwareMap.get(DcMotor.class, "lA");
-           // power = -gamepad2.left_stick_y;
-          //  lA.setPower(power);
-            //hydra.slideTurner.setPower(0.2);
+            //lA = hardwareMap.get(DcMotor.class, "lA");
+
+           hydra.lA.setPower(gamepad2.left_stick_y);
+           hydra.lA2.setPower(gamepad2.left_stick_y);
+
+           //power = -gamepad2.left_stick_y;
+            //hydra.lA.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
 
 

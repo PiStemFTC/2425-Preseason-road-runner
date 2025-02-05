@@ -36,6 +36,8 @@ public class Hydra {
     public DcMotor[] motors;
     public DcMotor slide;
     public DcMotor slideTurner;
+    public DcMotor lA;
+    public DcMotor lA2;
     public Servo toppos,middlepos,bottompos;
     private IMU imu;
     private double targetHeading = 0;
@@ -67,7 +69,7 @@ public class Hydra {
 
     public void initializeHardware(HardwareMap hardwareMap){
 
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
         fl = hardwareMap.get(DcMotor.class, "fl");
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
@@ -77,6 +79,8 @@ public class Hydra {
         toppos = hardwareMap.get(Servo.class,"toppos");
         middlepos = hardwareMap.get(Servo.class,"middlepos");
         bottompos = hardwareMap.get(Servo.class,"bottompos");
+        lA = hardwareMap.get(DcMotor.class,"lA");
+        lA2 = hardwareMap.get(DcMotor.class,"lA2");
         closeClaw();
         middlepos.setPosition(0.5);
         bottompos.setPosition(0.5);
