@@ -238,11 +238,11 @@ public class Hydra {
     }
 
     public void openClaw(){
-        toppos.setPosition(0.66);
+        toppos.setPosition(0.32);
     }
 
     public void closeClaw(){
-        toppos.setPosition(0.9);
+        toppos.setPosition(1.58);
     }
 
     public void autoHome(){

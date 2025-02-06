@@ -105,8 +105,8 @@ public class Drive extends LinearOpMode {
             hydra.arm.reset();
         }
 
-            if (gamepad2.right_trigger > 0 || gamepad2.right_trigger > 0) grab = true;
-            else if (gamepad2.left_bumper || gamepad2.left_bumper) grab = false;
+            if (gamepad2.left_trigger > 0 || gamepad2.right_trigger > 0) grab = true;
+            else if (gamepad2.left_bumper || gamepad2.right_bumper) grab = false;
 
             if(grab) hydra.closeClaw();
                 else hydra.openClaw();
