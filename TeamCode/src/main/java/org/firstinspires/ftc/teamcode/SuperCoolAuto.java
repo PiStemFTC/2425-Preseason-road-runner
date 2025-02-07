@@ -54,8 +54,10 @@ public class SuperCoolAuto extends LinearOpMode {
                 .moveArmToTravel()
                 .turnTo(0)
                 //strafe for grabbing 2nd duck
-                .strafeBy(-5f)
-                .forwardBy(1)
+                .strafeBy(-3f)
+                .lowPower()
+                .forwardBy(.5f)
+                .highPower()
                 .moveArmToPick()
                 .rotateArmBy(-50)
                 .delay(50)
@@ -64,27 +66,35 @@ public class SuperCoolAuto extends LinearOpMode {
                 .moveArmToTravel()
                 //drop 2nd duck into basket
                 .turnTo((float) (3 * Math.PI / 4))
-                .strafeBy(-4)
+                .strafeBy(-3)
                 .moveArmToHigh()
-                .forwardBy(10)
+                .forwardBy(7)
                 .openClawTask()
                 .delay(50)
+                .forwardBy(-5)
                 .moveArmToTravel()
                 //go get 3rd duck
                 .turnTo(0)
                 .moveArmToPick()
                 //strafe to grab 3rd duck
-                .strafeBy(-7.2f)
-                .forwardBy(9)
+                .strafeBy(-9f)
+                .forwardBy(3)
                 .rotateArmBy(-50)
                 .delay(50)
+                .closeClawTask()
                 .delay(50)
                 .moveArmToTravel()
+                //drop 3rd duck into basket
                 .turnTo((float) (3 * Math.PI / 4))
                 .strafeBy(-9)
                 .moveArmToHigh()
+                .lowPower()
+                .forwardBy(2)
+                .highPower()
+                .delay(50)
                 .openClawTask()
-                .delay(50);
+                .delay(50)
+                .moveArmToTravel();
                 //.forwardBy(-10);
 
 
@@ -94,7 +104,6 @@ public class SuperCoolAuto extends LinearOpMode {
         while (opModeIsActive()) {
             hydraController.update();
             hydra.update();
-
             telemetry.addData("heading", hydra.getHeading());
             telemetry.addData("state", hydraController.toString());
             telemetry.update();

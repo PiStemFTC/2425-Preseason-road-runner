@@ -49,6 +49,8 @@ public class Hydra {
     boolean turning = false;
     boolean strafeMoving = false;
     float strafeTargetDistance = 0;
+    public float fwdPower = .6f;
+
 
 
     final double[] forwardDirection = {
@@ -137,7 +139,7 @@ public class Hydra {
         }
 
         for (int i = 0; i < 4; ++i) {
-            powers[i] = clamp(forwardDirection[i] * fwdError, -0.5, 0.5);
+            powers[i] = clamp(forwardDirection[i] * fwdError, -fwdPower, fwdPower);
             powers[i] += turnDirection[i] * 0;
             powers[i] += clamp(strafeDirection[i] * -strafeError, -0.4, 0.4);
             powers[i] += clamp(turnDirection[i] * -hdgError, -0.5, 0.5);

@@ -78,6 +78,30 @@ public class HydraController {
         return this;
     }
 
+    private class LowPower implements Task{
+        public void begin() {hydra.fwdPower = 0.25f;}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController lowPower(){
+        tasks.add(new LowPower());
+        return this;
+    }
+
+    private class HighPower implements Task{
+        public void begin() {hydra.fwdPower = 0.6f;}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public HydraController highPower(){
+        tasks.add(new HighPower());
+        return this;
+    }
+
     private class StrafeByTask implements  Task{
         private float distance;
         StrafeByTask(float inches){distance = inches;}
