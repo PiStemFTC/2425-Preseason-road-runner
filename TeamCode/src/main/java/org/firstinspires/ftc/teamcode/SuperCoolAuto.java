@@ -25,24 +25,24 @@ public class SuperCoolAuto extends LinearOpMode {
                     .turnTo((float) (3 * Math.PI / 4))
                     .moveArmToHigh()
                     .forwardBy(32)
-                    .delay(250)
+                    .delay(50)
                     .openClawTask()
-                    .delay(250)
+                    .delay(50)
                     //start get second duck
                     .forwardBy(-6);
             telemetry.addLine("right");
         } else{ //LEFT
             hydraController
-                    .forwardByAsync(6)
+                    .forwardByAsync(8)
                     .turnToAsync((float) Math.PI / 2)
                     .waitWhileMoving()
-                    .forwardBy(34)
+                    .forwardBy(32)
                     .turnTo((float) (3 * Math.PI / 4))
-                    .forwardByAsync(4)
                     .moveArmToHigh()
-                    .delay(250)
+                    .forwardBy(4)
+                    .delay(50)
                     .openClawTask()
-                    .delay(250)
+                    .delay(50)
                     //start get second duck
                     .forwardBy(-9);
             telemetry.addLine("left");
@@ -53,36 +53,39 @@ public class SuperCoolAuto extends LinearOpMode {
         hydraController
                 .moveArmToTravel()
                 .turnTo(0)
-                //.strafeBy(-2)
-                .forwardBy(3)
+                //strafe for grabbing 2nd duck
+                .strafeBy(-5f)
+                .forwardBy(1)
                 .moveArmToPick()
                 .rotateArmBy(-50)
-                .delay(250)
+                .delay(50)
                 .closeClawTask()
-                .delay(250)
+                .delay(50)
                 .moveArmToTravel()
                 //drop 2nd duck into basket
                 .turnTo((float) (3 * Math.PI / 4))
                 .strafeBy(-4)
-                .forwardByAsync(7)
                 .moveArmToHigh()
+                .forwardBy(10)
                 .openClawTask()
-                .delay(250)
+                .delay(50)
                 .moveArmToTravel()
                 //go get 3rd duck
                 .turnTo(0)
                 .moveArmToPick()
-                .strafeBy(-15)
-                .forwardBy(7)
+                //strafe to grab 3rd duck
+                .strafeBy(-7.2f)
+                .forwardBy(9)
                 .rotateArmBy(-50)
-                .delay(250)
-                .closeClawTask()
-                .delay(250)
+                .delay(50)
+                .delay(50)
                 .moveArmToTravel()
                 .turnTo((float) (3 * Math.PI / 4))
-                .strafeBy(-6)
+                .strafeBy(-9)
                 .moveArmToHigh()
-                .openClawTask();
+                .openClawTask()
+                .delay(50);
+                //.forwardBy(-10);
 
 
 

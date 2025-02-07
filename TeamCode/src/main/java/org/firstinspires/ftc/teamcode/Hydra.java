@@ -137,9 +137,9 @@ public class Hydra {
         }
 
         for (int i = 0; i < 4; ++i) {
-            powers[i] = clamp(forwardDirection[i] * fwdError, -0.35, 0.35);
+            powers[i] = clamp(forwardDirection[i] * fwdError, -0.5, 0.5);
             powers[i] += turnDirection[i] * 0;
-            powers[i] += clamp(strafeDirection[i] * -strafeError, -0.25, 0.25);
+            powers[i] += clamp(strafeDirection[i] * -strafeError, -0.4, 0.4);
             powers[i] += clamp(turnDirection[i] * -hdgError, -0.5, 0.5);
         }
         for (int i = 0; i < 4; ++i) {
@@ -238,17 +238,37 @@ public class Hydra {
     }
 
     public void openClaw(){
-        toppos.setPosition(0.32);
+        toppos.setPosition(0);
     }
 
     public void closeClaw(){
-        toppos.setPosition(1.58);
+        toppos.setPosition(.45);
     }
 
     public void autoHome(){
         slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Extend slide by 200 ticks
+        {
+            // Start moving the slide the direction you want, wait a moment, then compare the change in distance to your target.
+            long startingPosition = slide.getCurrentPosition();
+
+            // Move slide out
+            slide.setPower(.2);
+            while (true) {
+                try{Thread.sleep(50);} catch (Exception e){}
+                long currentPosition = slide.getCurrentPosition();
+                if (slide.getCurrentPosition() == currentPosition) {
+                    // Abort if the slide isn't moving (it hit a mechanical limit somehow)
+                    break;
+                } else if (Math.abs(currentPosition - startingPosition) >= 200) {
+                    // Goal achieved
+                    slide.setPower(0.0);
+                    break;
+                }
+            }
+        }
         long startPos = slide.getCurrentPosition();
-        slide.setPower(-.2);
+        slide.setPower(-.5);
         while(true){
             try{Thread.sleep(50);} catch (Exception e){}
             if(startPos == slide.getCurrentPosition()){
@@ -266,7 +286,7 @@ public class Hydra {
 
         // initalis pivet
         startPos = slideTurner.getCurrentPosition();
-        slideTurner.setPower(-.2);
+        slideTurner.setPower(-.5);
         while(true){
             try{Thread.sleep(50);} catch (Exception e){}
             if(startPos == slideTurner.getCurrentPosition()){
