@@ -43,6 +43,13 @@ public class ArmController {
         nextSlideTgt = 2050;
         nextPivotTgt = 400;
     }
+
+    private float maxExtension(float pivotPosition){
+        if(pivotPosition > 600){
+            return 4500;
+        } else{return  3750;}
+    }
+
     public void reset(){
         state = State_Inital;
     }
@@ -104,7 +111,7 @@ public class ArmController {
                     state = State_Inital;
                     }
         }
-        slideTgt = hydra.clamp(slideTgt,0,4500);
+        slideTgt = hydra.clamp(slideTgt,0,maxExtension(hydra.slideTurner.getCurrentPosition()));
         float slidePos = hydra.slide.getCurrentPosition();
         float slideError = slideTgt - slidePos;
         slideError = hydra.clamp(slideError/100.0f,-1.0f,1.0f);

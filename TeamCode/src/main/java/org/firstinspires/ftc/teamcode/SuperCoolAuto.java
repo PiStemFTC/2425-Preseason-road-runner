@@ -94,12 +94,9 @@ public class SuperCoolAuto extends LinearOpMode {
                 .delay(50)
                 .openClawTask()
                 .delay(50)
-                .moveArmToTravel();
+                .rotateArmBy(100);
+                //.moveArmToTravel();
                 //.forwardBy(-10);
-
-
-
-
 
         while (opModeIsActive()) {
             hydraController.update();

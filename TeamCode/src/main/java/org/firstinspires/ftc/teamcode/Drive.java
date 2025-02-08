@@ -207,14 +207,14 @@ public class Drive extends LinearOpMode {
                     slideTgt = 2050;
                     pivotTgt = 400;
                 } else if (gamepad2.y) {
-                    slideTgt = 4500;
+                    slideTgt = 4500; //changed
                     pivotTgt = 1230;
                 } else if (gamepad2.b) {
                     slideTgt = 500;
                     pivotTgt = 500;
 
                 }
-                slideTgt = hydra.clamp(slideTgt, 0, 4500);
+                slideTgt = hydra.clamp(slideTgt, 0, 4500); //changed
                 slidePos = hydra.slide.getCurrentPosition();
                 float slideError = slideTgt - slidePos;
                 slideError = hydra.clamp(slideError / 100.0f, -1.0f, 1.0f);
