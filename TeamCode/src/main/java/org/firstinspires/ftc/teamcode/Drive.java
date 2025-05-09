@@ -7,7 +7,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -67,6 +67,8 @@ public class Drive extends LinearOpMode {
         Hydra hydra = new Hydra(telemetry);
         hydra.initializeHardware(hardwareMap);
 
+        TouchSensor magswitch = hardwareMap.get(TouchSensor.class, "magswitch");
+
         // TODO XXX Use the motors mapped by Hydra
         //hydra.limelight.pipelineSwitch(0);
 
@@ -95,6 +97,8 @@ public class Drive extends LinearOpMode {
 
         boolean grab = true;
         while (opModeIsActive()) {
+
+
             //monkeyBuisness(hydra);
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -267,6 +271,7 @@ public class Drive extends LinearOpMode {
                 telemetry.addData("slidePos",hydra.slide.getCurrentPosition());
                 telemetry.addData("slidedeg",hydra.slideTurner.getCurrentPosition());
                 telemetry.addData("state",hydra.arm.state);
+                telemetry.addData("Jeff", magswitch.isPressed());
                 if (dT > 0) {
                     telemetry.addData("radians/ms", changeInHeading / dT);
                 }
