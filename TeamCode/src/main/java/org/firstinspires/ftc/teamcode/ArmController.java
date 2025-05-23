@@ -43,6 +43,13 @@ public class ArmController {
         nextSlideTgt = 2050;
         nextPivotTgt = 400;
     }
+    public void moveToHighFive(){
+        if (state!= State_Inital) return;
+        slideTgt = 350;
+        nextSlideTgt = 3000;
+        nextPivotTgt = 1100;
+        state = State_StowSlide;
+    }
 
     private float maxExtension(float pivotPosition){
         if(pivotPosition > 600){

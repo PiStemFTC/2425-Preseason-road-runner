@@ -7,12 +7,14 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -31,7 +33,7 @@ public class Drive extends LinearOpMode {
             -1, 1};
     final double[] strafeDirection = {
             -1, 1,
-            1, -1};
+             1,-1};
     double dT;
     long lastTime;
     long now;
@@ -67,7 +69,7 @@ public class Drive extends LinearOpMode {
         Hydra hydra = new Hydra(telemetry);
         hydra.initializeHardware(hardwareMap);
 
-        TouchSensor magswitch = hardwareMap.get(TouchSensor.class, "magswitch");
+        DistanceSensor magswitch  = hardwareMap.get(DistanceSensor.class, "Jared");
 
         // TODO XXX Use the motors mapped by Hydra
         //hydra.limelight.pipelineSwitch(0);
@@ -171,7 +173,7 @@ public class Drive extends LinearOpMode {
                     targetHeading = (orientation.getYaw(AngleUnit.RADIANS) + ((changeInHeading / dT) * 100));
                 }
                 turning = false;
-            }
+        }
 
             // slidePos = slidePos + (int)(-gamepad2.left_stick_y * 10);
 
@@ -204,6 +206,9 @@ public class Drive extends LinearOpMode {
             if(gamepad2.y) {
                 hydra.arm.moveToHigh();
             }
+            if(gamepad2.a) {
+                hydra.arm.moveToHighFive();
+            }
             hydra.arm.update();
             if(false) {
                 slideTgt += -gamepad2.left_stick_y * 25;
@@ -216,7 +221,9 @@ public class Drive extends LinearOpMode {
                 } else if (gamepad2.b) {
                     slideTgt = 500;
                     pivotTgt = 500;
-
+                } else if (gamepad2.a) { //low high five position
+                    slideTgt = 3000;
+                    pivotTgt = 1000;
                 }
                 slideTgt = hydra.clamp(slideTgt, 0, 4500); //changed
                 slidePos = hydra.slide.getCurrentPosition();
@@ -247,6 +254,7 @@ public class Drive extends LinearOpMode {
                 //  double power1 = gamepad2.left_stick_x;
             }
 
+
             // LA stands for linear actuator.
             //lA = hardwareMap.get(DcMotor.class, "lA");
 
@@ -256,6 +264,7 @@ public class Drive extends LinearOpMode {
            //power = -gamepad2.left_stick_y;
             //hydra.lA.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
+            
 
 
 
@@ -271,7 +280,7 @@ public class Drive extends LinearOpMode {
                 telemetry.addData("slidePos",hydra.slide.getCurrentPosition());
                 telemetry.addData("slidedeg",hydra.slideTurner.getCurrentPosition());
                 telemetry.addData("state",hydra.arm.state);
-                telemetry.addData("Jeff", magswitch.isPressed());
+                telemetry.addData("Jared", magswitch.getDistance(DistanceUnit.INCH));
                 if (dT > 0) {
                     telemetry.addData("radians/ms", changeInHeading / dT);
                 }
