@@ -7,6 +7,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -149,6 +150,14 @@ public class Drive extends LinearOpMode {
                 powers[i] += strafeDirection[i] * -(gamepad1.left_stick_x * .6);
                 powers[i] += turnDirection[i] * error;
             }
+            if (magswitch.getDistance(DistanceUnit.INCH) < (10)) {
+               powers[0]=0;
+               powers[1]=0;
+               powers[2]=0;
+               powers[3]=0;
+            }
+
+
             for (int i = 0; i < 4; ++i) {
                 // XXX TODO Use Hydra motors array instead of this copy
                 hydra.motors[i].setPower(powers[i]);
@@ -264,7 +273,7 @@ public class Drive extends LinearOpMode {
            //power = -gamepad2.left_stick_y;
             //hydra.lA.setPower(0.2);
                 // hydra.slide.setTargetPosition(slidePos);
-            
+
 
 
 
