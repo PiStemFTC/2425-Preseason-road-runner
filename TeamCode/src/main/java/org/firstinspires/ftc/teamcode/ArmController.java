@@ -36,10 +36,10 @@ public class ArmController {
         nextSlideTgt = 300;
         nextPivotTgt = 500;
     }
-    public void moveToPick(){
-        if (state!= State_Inital) return;
+    public void moveToPick() {
+        if (state != State_Inital) return;
         slideTgt = 350;
-        state= State_StowSlide;
+        state = State_StowSlide;
         nextSlideTgt = 2050;
         nextPivotTgt = 400;
     }
@@ -50,6 +50,15 @@ public class ArmController {
         nextPivotTgt = 1100;
         state = State_StowSlide;
     }
+        public void fistBump(){
+            if (state!= State_Inital) return;
+            slideTgt = 350 ;
+            state= State_StowSlide;
+            nextSlideTgt = 4000
+            ;
+            nextPivotTgt = 1000;
+    }
+
 
     private float maxExtension(float pivotPosition){
         if(pivotPosition > 600){

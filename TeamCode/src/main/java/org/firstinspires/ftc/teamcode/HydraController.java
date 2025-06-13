@@ -97,6 +97,7 @@ public class HydraController {
         }
     }
 
+
     public HydraController highPower(){
         tasks.add(new HighPower());
         return this;

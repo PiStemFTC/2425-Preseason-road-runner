@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "SuperCoolAuto", group = "Autonomous", preselectTeleOp = "Drive")
-public class SuperCoolAuto extends LinearOpMode {
+@Autonomous(name = "EvenCoolerAuto", group = "Autonomous", preselectTeleOp = "Drive")
+public class EvenCoolerAuto extends LinearOpMode {
     private Hydra hydra;
     private HydraController hydraController;
 
@@ -54,15 +54,13 @@ public class SuperCoolAuto extends LinearOpMode {
                 .moveArmToTravel()
                 .turnTo(0)
                 //strafe for grabbing 2nd duck
-                .highPower()
-                .strafeBy(1f)
-                .strafeBy(-5f)
+                .strafeBy(-2.5f)
                 //.lowPower()
-                //.forwardBy(-.5f)
+                //.forwardBy(.5f)
                 //.highPower()
                 .moveArmToPick()
                 .rotateArmBy(-75)
-                .delay(175)
+                .delay(50)
                 .closeClawTask()
                 .delay(50)
                 .moveArmToTravel()
@@ -79,10 +77,10 @@ public class SuperCoolAuto extends LinearOpMode {
                 .turnTo(0)
                 .moveArmToPick()
                 //strafe to grab 3rd duck
-                .strafeBy(-13f)
-                .forwardBy(1f)
+                .strafeBy(-9.5f)
+                .forwardBy(2.5f)
                 .rotateArmBy(-75)
-                .delay(175)
+                .delay(50)
                 .closeClawTask()
                 .delay(50)
                 .moveArmToTravel()
@@ -97,8 +95,8 @@ public class SuperCoolAuto extends LinearOpMode {
                 .openClawTask()
                 .delay(50)
                 .rotateArmBy(100);
-                //.moveArmToTravel();
-                //.forwardBy(-10);
+        //.moveArmToTravel();
+        //.forwardBy(-10);
 
         while (opModeIsActive()) {
             hydraController.update();

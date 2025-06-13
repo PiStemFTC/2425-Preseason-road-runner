@@ -91,6 +91,7 @@ public class Hydra {
         bottompos.setPosition(0.5);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
+
         slide.setDirection(DcMotorSimple.Direction.REVERSE);
        // slideTurner.setDirection(DcMotorSimple.Direction.REVERSE);
         slideTurner.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -245,7 +246,7 @@ public class Hydra {
     }
 
     public void closeClaw(){
-        toppos.setPosition(.45);
+        toppos.setPosition(.35);
     }
 
     public void autoHome(){

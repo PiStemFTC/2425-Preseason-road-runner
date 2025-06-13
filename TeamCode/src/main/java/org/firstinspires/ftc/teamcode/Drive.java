@@ -8,6 +8,8 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -71,6 +73,7 @@ public class Drive extends LinearOpMode {
         hydra.initializeHardware(hardwareMap);
 
         DistanceSensor magswitch  = hardwareMap.get(DistanceSensor.class, "Jared");
+        CRServo CRtest = hardwareMap.get(Servo.class, "CRtest");
 
         // TODO XXX Use the motors mapped by Hydra
         //hydra.limelight.pipelineSwitch(0);
@@ -110,6 +113,11 @@ public class Drive extends LinearOpMode {
         if (gamepad1.y) {
             hydra.autoHome();
             hydra.arm.reset();
+        }
+
+        if(gamepad1.a){
+            CRtest.setPower(1);
+            CRtest.setDirection(CRServo.Direction.REVERSE);
         }
 
             if (gamepad2.left_trigger > 0 || gamepad2.right_trigger > 0) grab = true;
@@ -217,6 +225,9 @@ public class Drive extends LinearOpMode {
             }
             if(gamepad2.a) {
                 hydra.arm.moveToHighFive();
+            }
+            if(gamepad2.a) {
+                hydra.arm.fistBump();
             }
             hydra.arm.update();
             if(false) {
