@@ -73,7 +73,7 @@ public class Drive extends LinearOpMode {
         hydra.initializeHardware(hardwareMap);
 
         DistanceSensor magswitch  = hardwareMap.get(DistanceSensor.class, "Jared");
-        CRServo CRtest = hardwareMap.get(Servo.class, "CRtest");
+        CRServo CRtest = hardwareMap.get(CRServo.class, "CRtest");
 
         // TODO XXX Use the motors mapped by Hydra
         //hydra.limelight.pipelineSwitch(0);
