@@ -4,23 +4,38 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.sun.tools.javac.util.Position;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
-@TeleOp(name="AprilTagLimelightTest", group="TeleOp")
+@Autonomous(name="AprilTagLimelightTest", group="Autonomous")
 public class AprilTagLimelightTest extends OpMode {
     private Limelight3A limelight;
     private IMU imu;
+    private Hydra hydra;
+    private HydraController hydraController;
+    private int tagID;
+    public enum State {
+        Init,
+        FindTag,
+        Position,
+        Done;
+    }
+    private State state = State.Init;
 
 
     @Override
     public void init() {
+        hydra = new Hydra(telemetry);
+        hydra.initializeHardware(hardwareMap);
+        hydraController = new HydraController(hydra);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         imu = hardwareMap.get(IMU.class, "imu");
         limelight.pipelineSwitch(0); // obelisk aprilTags
@@ -37,6 +52,9 @@ public class AprilTagLimelightTest extends OpMode {
 
     @Override
     public void loop() {
+        int tag = -1;
+        int targetTx = -7;
+        int targetTy = 16;
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         limelight.updateRobotOrientation(orientation.getYaw());
         LLResult llResult = limelight.getLatestResult();
@@ -44,12 +62,49 @@ public class AprilTagLimelightTest extends OpMode {
             List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
                 telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                tag = fr.getFiducialId();
             }
             Pose3D botPose = llResult.getBotpose_MT2();
             telemetry.addData("Tx:", llResult.getTx());
             telemetry.addData("Ty:", llResult.getTy());
             telemetry.addData("Target Area:", llResult.getTa());
             telemetry.addData("Botpose:", botPose.toString());
+
+            if (state == State.Position) {
+                    double xError = llResult.getTx() - targetTx;
+                    double yError = llResult.getTy() - targetTy;
+                    if(Math.abs(xError) < 1.0 && Math.abs(yError) < 2.0){
+                        state = State.Done;
+                    } else {
+                        hydraController.lowPower()
+                                .forwardBy((float) -yError * .05f)
+                                .strafeBy((float) -xError * .05f)
+                                .waitWhileMoving();
+                        telemetry.addData("X Error", xError);
+                        telemetry.addData("Y Error", yError);
+                    }
+            }
         }
+        switch (state){
+            case Init:
+                hydraController
+                    .forwardBy(30)
+                    .turnTo((float) (Math.PI / 2));
+                state = State.FindTag;
+                break;
+            case FindTag:
+                if(tag != -1) {
+                    tagID = tag;
+                    hydraController
+                            .turnTo((float) Math.PI);
+                    state = State.Position;
+                }
+                break;
+            case Position:
+                break;
+        }
+        hydraController.update();
+        hydra.update();
+
     }
 }

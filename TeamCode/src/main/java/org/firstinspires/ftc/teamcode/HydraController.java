@@ -24,7 +24,9 @@ public class HydraController {
 
     public Queue<Task> tasks = new LinkedList<>();
     public Task currentTask = null;
-
+    public boolean isIdle(){
+        return state == State.Idle;
+    }
     public void update(){
         switch (state){
             case Idle:

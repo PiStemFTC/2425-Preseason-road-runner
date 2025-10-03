@@ -84,9 +84,9 @@ public class Hydra {
         toppos = hardwareMap.get(Servo.class,"toppos");
         middlepos = hardwareMap.get(Servo.class,"middlepos");
         bottompos = hardwareMap.get(Servo.class,"bottompos");
-        lA = hardwareMap.get(DcMotor.class,"lA");
-        lA2 = hardwareMap.get(DcMotor.class,"lA2");
-        closeClaw();
+       // lA = hardwareMap.get(DcMotor.class,"lA");
+        //lA2 = hardwareMap.get(DcMotor.class,"lA2");
+        //closeClaw();
         middlepos.setPosition(0.5);
         bottompos.setPosition(0.5);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
