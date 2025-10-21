@@ -278,8 +278,8 @@ public class Drive extends LinearOpMode {
             // LA stands for linear actuator.
             //lA = hardwareMap.get(DcMotor.class, "lA");
 
-           hydra.lA.setPower(gamepad2.left_stick_y);
-           hydra.lA2.setPower(gamepad2.left_stick_y);
+           //hydra.lA.setPower(gamepad2.left_stick_y);
+           //hydra.lA2.setPower(gamepad2.left_stick_y);
 
            //power = -gamepad2.left_stick_y;
             //hydra.lA.setPower(0.2);

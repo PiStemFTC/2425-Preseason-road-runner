@@ -11,37 +11,26 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TestTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
-        CRServo servo = hardwareMap.get(CRServo.class, "servo");
-        DcMotor lSpinny = hardwareMap.get(DcMotor.class, "lSpinny");
-        DcMotor rSpinny = hardwareMap.get(DcMotor.class, "rSpinny");
-        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");
+        CRServo MGR = hardwareMap.get(CRServo.class, "MGR");
+        DcMotor spinny = hardwareMap.get(DcMotor.class, "spinny");
         Servo flicky = hardwareMap.get(Servo.class, "flicky");
 
-        rSpinny.setDirection(DcMotorSimple.Direction.REVERSE);
-        lSpinny.setDirection(DcMotorSimple.Direction.REVERSE);
+        spinny.setDirection(DcMotorSimple.Direction.REVERSE);
         flicky.setPosition(1);
 
         waitForStart();
         while (opModeIsActive()) {
             if (gamepad1.left_bumper) {
-                lSpinny.setPower(1);
-                rSpinny.setPower(1);
+                spinny.setPower(1);
             } else {
-                lSpinny.setPower(0);
-                rSpinny.setPower(0);
-            }
-
-            if (gamepad1.right_bumper) {
-                intake.setPower(1);
-            } else {
-                intake.setPower(0);
+                spinny.setPower(0);
             }
 
             if (gamepad1.a) {
-                servo.setPower(1);
-                servo.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
+                MGR.setPower(1);
+                MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
             } else {
-                servo.setPower(0);
+                MGR.setPower(0);
             }
 
             if (gamepad1.x) {
