@@ -68,7 +68,6 @@ public class Propel extends LinearOpMode {
         Bessie bessie = new Bessie(telemetry);
         bessie.initializeHardware(hardwareMap);
 
-        DistanceSensor magswitch  = hardwareMap.get(DistanceSensor.class, "Jared");
 
         // TODO XXX Use the motors mapped by Hydra
         //hydra.limelight.pipelineSwitch(0);
@@ -94,6 +93,27 @@ public class Propel extends LinearOpMode {
 
         boolean grab = true;
         while (opModeIsActive()) {
+
+            if (gamepad2.left_bumper) {
+                bessie.spinny.setPower(1);
+            } else {
+                bessie.spinny.setPower(0);
+            }
+
+            if (gamepad2.right_bumper) {
+                bessie.shooter.setPower(1);
+            } else {
+                bessie.shooter.setPower(0);
+            }
+
+            if (gamepad2.a) {
+                bessie.MGR.setPower(.15);
+                bessie.MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
+            } else if (gamepad2.y) {
+                bessie.MGR.setPower(-.15);
+            } else {
+                bessie.MGR.setPower(0);
+            }
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -128,13 +148,6 @@ public class Propel extends LinearOpMode {
                 powers[i] += strafeDirection[i] * -(gamepad1.left_stick_x * .6);
                 powers[i] += turnDirection[i] * error;
             }
-            if (magswitch.getDistance(DistanceUnit.INCH) < (10)) {
-                powers[0]=0;
-                powers[1]=0;
-                powers[2]=0;
-                powers[3]=0;
-            }
-
 
             for (int i = 0; i < 4; ++i) {
                 // XXX TODO Use Hydra motors array instead of this copy
@@ -165,7 +178,6 @@ public class Propel extends LinearOpMode {
             telemetry.addData("targetHeading", targetHeading);
             telemetry.addData("dT", dT);
             telemetry.addData("changeInHeading", changeInHeading);
-            telemetry.addData("Jared", magswitch.getDistance(DistanceUnit.INCH));
             if (dT > 0) {
                 telemetry.addData("radians/ms", changeInHeading / dT);
             }

@@ -11,6 +11,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -35,6 +36,9 @@ public class Bessie {
     public DcMotor bl;
     public DcMotor br;
     public DcMotor[] motors;
+    public DcMotor spinny;
+    public DcMotor shooter;
+    public CRServo MGR;
     private IMU imu;
     private double targetHeading = 0;
     double lastHeading = 0;
@@ -47,7 +51,7 @@ public class Bessie {
     float strafeTargetDistance = 0;
     public float fwdPower = .6f;
 
-
+    private Telemetry telemetry;
 
     final double[] forwardDirection = {
             1, 1,
@@ -59,7 +63,9 @@ public class Bessie {
             -1, 1,
             1, -1};
 
-    private Telemetry telemetry;
+    public Bessie(Telemetry telemetry){
+        this.telemetry = telemetry;
+    }
 
     public void initializeHardware(HardwareMap hardwareMap){
 
@@ -68,11 +74,14 @@ public class Bessie {
         fr = hardwareMap.get(DcMotor.class, "fr");
         bl = hardwareMap.get(DcMotor.class, "bl");
         br = hardwareMap.get(DcMotor.class, "br");
-        // lA = hardwareMap.get(DcMotor.class,"lA");
-        //lA2 = hardwareMap.get(DcMotor.class,"lA2");
-        //closeClaw();
+        spinny = hardwareMap.get(DcMotor.class, "spinny");
+        MGR = hardwareMap.get(CRServo.class, "MGR");
+        shooter = hardwareMap.get(DcMotor.class, "shooter");
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
+        spinny.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         motors = new DcMotor[]{fl,fr,bl,br};
 
