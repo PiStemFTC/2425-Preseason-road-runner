@@ -12,11 +12,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -37,8 +40,10 @@ public class Bessie {
     public DcMotor br;
     public DcMotor[] motors;
     public DcMotor spinny;
-    public DcMotor shooter;
+    public DcMotorEx shooter;
+    public Servo flicky;
     public CRServo MGR;
+    public ColorSensor colorSensor;
     private IMU imu;
     private double targetHeading = 0;
     double lastHeading = 0;
@@ -76,11 +81,15 @@ public class Bessie {
         br = hardwareMap.get(DcMotor.class, "br");
         spinny = hardwareMap.get(DcMotor.class, "spinny");
         MGR = hardwareMap.get(CRServo.class, "MGR");
-        shooter = hardwareMap.get(DcMotor.class, "shooter");
+        flicky = hardwareMap.get(Servo.class, "flicky");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        colorSensor = (ColorSensor) hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+        colorSensor.enableLed(true);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         spinny.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         motors = new DcMotor[]{fl,fr,bl,br};
@@ -215,6 +224,95 @@ public class Bessie {
         strafeMoving = true;
         strafeTargetDistance = inches;
         startTicks = bl.getCurrentPosition();
+    }
+
+    public void startSpinny(){
+        spinny.setPower(1);
+    }
+
+    public void stopSpinny(){
+        spinny.setPower(0);
+    }
+
+    public void startShooter(){
+        shooter.setPower(1);
+    }
+
+    public void stopShooter(){
+        shooter.setPower(0);
+    }
+
+    public void flick(){
+        flicky.setPosition(1);
+    }
+
+    public void colorSensor(){
+    // Get RGB values from the color sensor
+    int red = colorSensor.red();
+    int green = colorSensor.green();
+    int blue = colorSensor.blue();
+
+    // Convert RGB to HSV
+    float[] hsv = new float[3];
+    RGBtoHSV(red, green, blue, hsv);
+
+    // Extract Hue, Saturation, and Value
+    float hue = hsv[0];
+    float saturation = hsv[1];
+    float value = hsv[2];
+
+    // Add telemetry data to monitor RGB, HSV values
+        telemetry.addData("Red", red);
+        telemetry.addData("Green", green);
+        telemetry.addData("Blue", blue);
+        telemetry.addData("Hue", hue);
+        telemetry.addData("Saturation", saturation);
+        telemetry.addData("Value", value);
+
+    // Adjusted color detection logic
+    // Detect Green color (hue range 90 - 160, saturation > 0.4, value > 0.2)
+        if (hue >= 90 && hue <= 160 && saturation > 0.4 && value > 0.2) {
+        telemetry.addData("Detected Color", "Green");
+    }
+    // Detect Purple color (hue range 230 - 280, saturation > 0.4, value > 0.2)
+        else if (hue >= 230 && hue <= 280 && saturation > 0.4 && value > 0.2) {
+        telemetry.addData("Detected Color", "Purple");
+    }
+    // If no color is detected, mark as Unknown
+        else {
+        telemetry.addData("Detected Color", "Unknown");
+    }
+
+        telemetry.update();
+}
+
+    public void RGBtoHSV(int r, int g, int b, float[] hsv) {
+        float max = Math.max(Math.max(r, g), b);
+        float min = Math.min(Math.min(r, g), b);
+        float delta = max - min;
+
+        float h = 0;
+        float s = (max == 0) ? 0 : (delta / max);
+        float v = max / 255.0f;
+
+        if (max == min) {
+            h = 0;  // No hue
+        } else {
+            if (max == r) {
+                h = (g - b) / delta;  // Red is max
+            } else if (max == g) {
+                h = (b - r) / delta + 2;  // Green is max
+            } else {
+                h = (r - g) / delta + 4;  // Blue is max
+            }
+
+            h *= 60;  // Convert to degrees
+            if (h < 0) h += 360;  // Ensure positive hue
+        }
+
+        hsv[0] = h;  // Hue
+        hsv[1] = s;  // Saturation
+        hsv[2] = v;  // Value
     }
 
     public boolean isMoving(){

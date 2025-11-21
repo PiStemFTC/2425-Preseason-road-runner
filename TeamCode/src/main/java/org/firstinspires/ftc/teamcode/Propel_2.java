@@ -21,8 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@TeleOp(name="Propel", group="TeleOp")
-public class Propel extends LinearOpMode {
+@TeleOp(name="Propel_2", group="TeleOp")
+public class Propel_2 extends LinearOpMode {
 
     private IMU imu;
     //public DcMotor slide;
@@ -93,37 +93,6 @@ public class Propel extends LinearOpMode {
 
         boolean grab = true;
         while (opModeIsActive()) {
-
-            if (gamepad2.left_bumper) {
-                bessie.spinny.setPower(1);
-            } else {
-                bessie.spinny.setPower(0);
-            }
-            if (gamepad2.right_bumper) {
-                bessie.shooter.setPower(.5);
-            } else {
-                bessie.shooter.setPower(0);
-            }
-
-            double encoderTicksPerRev = 28;
-            double ticksPerSecond = bessie.shooter.getVelocity();
-            double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 60.0;
-            telemetry.addData("Shooter RPM", shooterRPM);
-
-            if (gamepad2.a) {
-                bessie.MGR.setPower(.15);
-                bessie.MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
-            } else if (gamepad2.y) {
-                bessie.MGR.setPower(-.15);
-            } else {
-                bessie.MGR.setPower(0);
-            }
-
-            if(gamepad2.x){
-                bessie.flicky.setPosition(1);
-            } else{
-                bessie.flicky.setPosition(0);
-            }
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);

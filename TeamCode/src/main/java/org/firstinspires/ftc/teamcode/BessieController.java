@@ -119,6 +119,29 @@ public class BessieController {
         return this;
     }
 
+    private class LiftTask implements Task{
+        private long endTime;
+        private long delayMs = 250;
+        public void begin(){
+            bessie.flicky.setPosition(1);
+            endTime = System.currentTimeMillis() + delayMs;
+        }
+        public boolean isComplete(){
+            if(endTime <= System.currentTimeMillis()) {
+                return false;
+            } else {
+                bessie.flicky.setPosition(0);
+                return true;
+            }
+        }
+        LiftTask(){}
+    }
+
+    public BessieController Lift(){
+        tasks.add(new LiftTask());
+        return this;
+    }
+
     private class ForwardByTask implements Task{
         private float distance;
         ForwardByTask(float inches){distance = inches;}

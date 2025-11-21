@@ -7,6 +7,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.sun.tools.javac.util.Position;
 
@@ -15,12 +16,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
-@Autonomous(name="AprilTagLimelightTest", group="Autonomous")
-public class AprilTagLimelightTest extends OpMode {
+@Autonomous(name="TheCoolestAuto", group="Autonomous")
+public class TheCoolestAuto extends OpMode {
     private Limelight3A limelight;
     private IMU imu;
     private Hydra hydra;
     private HydraController hydraController;
+    private ColorSensor colorSensor;
     private int counter;
     private double xError;
     private double yError;
@@ -74,24 +76,24 @@ public class AprilTagLimelightTest extends OpMode {
             //telemetry.addData("Botpose:", botPose.toString());
 
             if (state == State.Position && !hydra.isMoving()) {
-                    xError = llResult.getTx() - targetTx;
-                    yError = llResult.getTy() - targetTy;
-                    if(Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0){
-                        state = State.Done;
-                    } else {
-                        hydraController.lowPower()
-                                .forwardBy((float) -yError * .05f)
-                                .strafeBy((float) -xError * .05f)
-                                .waitWhileMoving();
-                        counter++;
-                    }
+                xError = llResult.getTx() - targetTx;
+                yError = llResult.getTy() - targetTy;
+                if(Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0){
+                    state = State.Done;
+                } else {
+                    hydraController.lowPower()
+                            .forwardBy((float) -yError * .05f)
+                            .strafeBy((float) -xError * .05f)
+                            .waitWhileMoving();
+                    counter++;
+                }
             }
         }
         switch (state){
             case Init:
                 hydraController
-                    .forwardBy(30)
-                    .turnTo((float) (Math.PI / 2));
+                        .forwardBy(30)
+                        .turnTo((float) (Math.PI / 2));
                 state = State.FindTag;
                 break;
             case FindTag:
