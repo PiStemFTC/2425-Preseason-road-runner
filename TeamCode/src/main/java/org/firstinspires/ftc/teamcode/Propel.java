@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Propel extends LinearOpMode {
 
     private IMU imu;
+    private AnalogInput analogInput;
     //public DcMotor slide;
 
 
@@ -81,6 +83,7 @@ public class Propel extends LinearOpMode {
         // * Create an IMU (look up how to accomplish this)
         //   - part of the initialization will be assigning the orientation of the Control Hub
         imu = hardwareMap.get(IMU.class, "imu");
+        analogInput = hardwareMap.get(AnalogInput.class, "analogInput");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP)));
@@ -120,10 +123,13 @@ public class Propel extends LinearOpMode {
             }
 
             if(gamepad2.x){
-                bessie.flicky.setPosition(1);
+                bessie.flicky.setPosition(.4);
             } else{
                 bessie.flicky.setPosition(0);
             }
+
+            telemetry.addData(String.valueOf(analogInput.getMaxVoltage()), "max voltage");
+            telemetry.addData(String.valueOf(analogInput.getVoltage()), "voltage");
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);

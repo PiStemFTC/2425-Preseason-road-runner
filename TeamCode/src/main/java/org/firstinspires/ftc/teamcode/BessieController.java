@@ -126,7 +126,7 @@ public class BessieController {
             bessie.flicky.setPosition(1);
             endTime = System.currentTimeMillis() + delayMs;
         }
-        public boolean isComplete(){
+        public boolean isComplete(){;
             if(endTime <= System.currentTimeMillis()) {
                 return false;
             } else {
