@@ -26,7 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Propel extends LinearOpMode {
 
     private IMU imu;
-    private AnalogInput analogInput;
+
     //public DcMotor slide;
 
 
@@ -47,6 +47,8 @@ public class Propel extends LinearOpMode {
     double heading;
     double lastHeading;
     double changeInHeading;
+    boolean dpadUpAlreadyPressed = false;
+    boolean dpadDownAlreadyPressed = false;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -83,7 +85,6 @@ public class Propel extends LinearOpMode {
         // * Create an IMU (look up how to accomplish this)
         //   - part of the initialization will be assigning the orientation of the Control Hub
         imu = hardwareMap.get(IMU.class, "imu");
-        analogInput = hardwareMap.get(AnalogInput.class, "analogInput");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP)));
@@ -113,23 +114,33 @@ public class Propel extends LinearOpMode {
             double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 60.0;
             telemetry.addData("Shooter RPM", shooterRPM);
 
-            if (gamepad2.a) {
-                bessie.MGR.setPower(.15);
-                bessie.MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
-            } else if (gamepad2.y) {
-                bessie.MGR.setPower(-.15);
-            } else {
-                bessie.MGR.setPower(0);
-            }
+           // if (gamepad2.a) {
+             //   bessie.MGR.setPower(.15);
+               // bessie.MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
+            //} else if (gamepad2.y) {
+              //  bessie.MGR.setPower(-.15);
+            //} else {
+              //  bessie.MGR.setPower(0);
+            //}
+
+            if(gamepad2.dpad_up && !dpadUpAlreadyPressed){
+                dpadUpAlreadyPressed = true;
+                bessie.MGRNextLaunchPosition();
+            } else if(!gamepad2.dpad_up){ dpadUpAlreadyPressed = false; }
+
+            if(gamepad2.dpad_down && !dpadDownAlreadyPressed){
+                dpadDownAlreadyPressed = true;
+                bessie.MGRNextIntakePosition();
+            } else if(!gamepad2.dpad_down){ dpadDownAlreadyPressed = false; }
 
             if(gamepad2.x){
-                bessie.flicky.setPosition(.4);
+                bessie.flicky.setPosition(.5);
             } else{
-                bessie.flicky.setPosition(0);
+                bessie.flicky.setPosition(0.02);
             }
 
-            telemetry.addData(String.valueOf(analogInput.getMaxVoltage()), "max voltage");
-            telemetry.addData(String.valueOf(analogInput.getVoltage()), "voltage");
+            telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
+            telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -166,7 +177,6 @@ public class Propel extends LinearOpMode {
             }
 
             for (int i = 0; i < 4; ++i) {
-                // XXX TODO Use Hydra motors array instead of this copy
                 bessie.motors[i].setPower(powers[i]);
             }
 
@@ -186,7 +196,7 @@ public class Propel extends LinearOpMode {
                 turning = false;
             }
 
-
+            bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();
             telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
             telemetry.addData("error", error);

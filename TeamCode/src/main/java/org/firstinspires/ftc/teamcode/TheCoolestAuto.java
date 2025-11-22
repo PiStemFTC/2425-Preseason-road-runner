@@ -6,10 +6,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.sun.tools.javac.util.Position;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -20,8 +18,8 @@ import java.util.List;
 public class TheCoolestAuto extends OpMode {
     private Limelight3A limelight;
     private IMU imu;
-    private Hydra hydra;
-    private HydraController hydraController;
+    private Bessie bessie;
+    private BessieController bessieController;
     private ColorSensor colorSensor;
     private int counter;
     private double xError;
@@ -38,9 +36,9 @@ public class TheCoolestAuto extends OpMode {
 
     @Override
     public void init() {
-        hydra = new Hydra(telemetry);
-        hydra.initializeHardware(hardwareMap);
-        hydraController = new HydraController(hydra);
+        bessie = new Bessie(telemetry);
+        bessie.initializeHardware(hardwareMap);
+        bessieController = new BessieController(bessie);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         imu = hardwareMap.get(IMU.class, "imu");
         limelight.pipelineSwitch(0); // obelisk aprilTags
@@ -75,13 +73,13 @@ public class TheCoolestAuto extends OpMode {
             //telemetry.addData("Target Area:", llResult.getTa());
             //telemetry.addData("Botpose:", botPose.toString());
 
-            if (state == State.Position && !hydra.isMoving()) {
+            if (state == State.Position && !bessie.isMoving()) {
                 xError = llResult.getTx() - targetTx;
                 yError = llResult.getTy() - targetTy;
                 if(Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0){
                     state = State.Done;
                 } else {
-                    hydraController.lowPower()
+                    bessieController.lowPower()
                             .forwardBy((float) -yError * .05f)
                             .strafeBy((float) -xError * .05f)
                             .waitWhileMoving();
@@ -91,7 +89,7 @@ public class TheCoolestAuto extends OpMode {
         }
         switch (state){
             case Init:
-                hydraController
+                bessieController
                         .forwardBy(30)
                         .turnTo((float) (Math.PI / 2));
                 state = State.FindTag;
@@ -99,7 +97,7 @@ public class TheCoolestAuto extends OpMode {
             case FindTag:
                 if(tag != -1) {
                     tagID = tag;
-                    hydraController
+                    bessieController
                             .turnTo((float) Math.PI);
                     state = State.Position;
                 }
@@ -111,8 +109,8 @@ public class TheCoolestAuto extends OpMode {
         telemetry.addData("Counter", counter);
         telemetry.addData("X Error", xError);
         telemetry.addData("Y Error", yError);
-        hydraController.update();
-        hydra.update();
+        bessieController.update();
+        bessie.update();
         telemetry.update();
     }
 }

@@ -11,6 +11,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -45,6 +46,7 @@ public class Bessie {
     public CRServo MGR;
     public ColorSensor colorSensor;
     private IMU imu;
+    public AnalogInput analogInput;
     private double targetHeading = 0;
     double lastHeading = 0;
     double changeInHeading;
@@ -55,6 +57,8 @@ public class Bessie {
     boolean strafeMoving = false;
     float strafeTargetDistance = 0;
     public float fwdPower = .6f;
+    public double MGRTargetVoltage = 0;
+    public int MGRPositionIndex = 0;
 
     private Telemetry telemetry;
 
@@ -83,6 +87,7 @@ public class Bessie {
         MGR = hardwareMap.get(CRServo.class, "MGR");
         flicky = hardwareMap.get(Servo.class, "flicky");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        analogInput = hardwareMap.get(AnalogInput.class, "analogInput");
         colorSensor = (ColorSensor) hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
         colorSensor.enableLed(true);
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -102,6 +107,35 @@ public class Bessie {
 
     }
 
+    public void updateMGR(){
+        double MGRpos = 0;
+        double MGRerror = 0;
+        //MGR position update
+        MGRpos = analogInput.getVoltage();
+        MGRerror = MGRDiff(MGRTargetVoltage, MGRpos);
+
+        if(MGRerror < -0.01){
+            double p = -MGRerror;
+            if(p > 0.15){
+                p = 0.15;
+            }
+            MGR.setPower(-p);
+        }
+
+        if(MGRerror > 0.01){
+            double p = -MGRerror;
+            if(p < -0.15){
+                p = -0.15;
+            }
+            MGR.setPower(-p);
+        }
+
+        telemetry.addData("index", MGRPositionIndex);
+        telemetry.addData("MGR error", MGRerror);
+        telemetry.addData("MGR position", MGRpos);
+        telemetry.addData("MGR target voltage", MGRTargetVoltage);
+    }
+
     public void update(){
         double hdgError = 0;
         float fwdError = 0;
@@ -111,12 +145,12 @@ public class Bessie {
         double[] powers = {0, 0, 0, 0};
 
         if(fwdMoving) {
-            long pos2 = fl.getCurrentPosition();
+            long pos2 = fr.getCurrentPosition();
             float inches = distance(startTicks, pos2);
             fwdError = targetDistance - inches;
             fwdError = fwdError / Math.abs(targetDistance);
         } else if(strafeMoving){
-            long pos2 = bl.getCurrentPosition();
+            long pos2 = br.getCurrentPosition();
             float inches = distance(startTicks, pos2);
             strafeError = strafeTargetDistance - inches;
             strafeError = strafeError / Math.abs(strafeTargetDistance);
@@ -143,10 +177,38 @@ public class Bessie {
         for (int i = 0; i < 4; ++i) {
             motors[i].setPower(powers[i]);
         }
+
+        updateMGR();
         telemetry.addData("error", fwdError);
-        telemetry.addData("position", bl.getCurrentPosition());
+        telemetry.addData("position", br.getCurrentPosition());
         telemetry.addData("strafe error", strafeError);
 
+    }
+
+    private double MGRCalcIntakePosition(int position){
+      double positions[] = {.452, 1.553, 2.653};
+         return positions[position];
+    }
+
+    public void MGRNextIntakePosition(){
+        MGRPositionIndex++;
+        if(MGRPositionIndex > 2){
+           MGRPositionIndex = MGRPositionIndex%3;
+        }
+        MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
+    }
+
+    private double MGRCalcLaunchPosition(int position){
+        double positions[] = {1.024, 2.074, 3.277};
+        return positions[position];
+    }
+
+    public void MGRNextLaunchPosition(){
+        MGRPositionIndex++;
+        if(MGRPositionIndex > 2){
+            MGRPositionIndex = MGRPositionIndex%3;
+        }
+        MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
     }
 
     private double circleDiff(double a1, double a2) {
@@ -156,6 +218,15 @@ public class Bessie {
             return (Math.PI - a1) + (a2 + Math.PI);
         else
             return a2 - a1;
+    }
+
+    private double MGRDiff(double a1, double a2) {
+        final double C = 3.3/2;
+        if (a2 > a1 && a2-a1 > C)       return a2 - 3.3 - a1;
+        else if (a2 > a1 && a2-a1 <= C) return a2 - a1;
+        else if (a1 > a2 && a1-a2 > C)  return 3.3 - a1 + a2;
+        else if (a1 > a2 && a1-a2 <= C) return a2 - a1;
+        else return 0;
     }
 
     public double getHeading(){
@@ -217,13 +288,13 @@ public class Bessie {
     public void forwardBy(float inches){
         fwdMoving = true;
         targetDistance = inches;
-        startTicks = fl.getCurrentPosition();
+        startTicks = fr.getCurrentPosition();
     }
 
     public void strafeBy(float inches){
         strafeMoving = true;
         strafeTargetDistance = inches;
-        startTicks = bl.getCurrentPosition();
+        startTicks = br.getCurrentPosition();
     }
 
     public void startSpinny(){
