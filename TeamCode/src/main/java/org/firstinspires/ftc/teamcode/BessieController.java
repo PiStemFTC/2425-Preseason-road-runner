@@ -27,6 +27,7 @@ public class BessieController {
     public boolean isIdle(){
         return state == State.Idle;
     }
+    public boolean isDone() { return state == State.Done; }
     public void update(){
         switch (state){
             case Idle:
@@ -58,9 +59,7 @@ public class BessieController {
         public void begin(){
             endTime = System.currentTimeMillis() + delayMs;
         }
-        public boolean isComplete(){
-            return endTime <= System.currentTimeMillis();
-        }
+        public boolean isComplete(){ return endTime <= System.currentTimeMillis(); }
     }
 
     public BessieController delay(long ms){
@@ -119,15 +118,52 @@ public class BessieController {
         return this;
     }
 
-    private class LiftTask implements Task{
+    private class StartShooterTask implements Task{
         private long endTime;
-        private long delayMs = 250;
+        private long delayMs = 750;
         public void begin(){
-            bessie.flicky.setPosition(1);
+            bessie.startShooter();
             endTime = System.currentTimeMillis() + delayMs;
         }
         public boolean isComplete(){;
-            if(endTime <= System.currentTimeMillis()) {
+            if(System.currentTimeMillis() < endTime) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        StartShooterTask(){}
+    }
+
+    public BessieController startShooter(){
+        tasks.add(new StartShooterTask());
+        return this;
+    }
+
+    private class StopShooterTask implements Task{
+        public void begin(){
+            bessie.stopShooter();
+        }
+        public boolean isComplete(){;
+          return true;
+        }
+        StopShooterTask(){}
+    }
+
+    public BessieController stopShooter(){
+        tasks.add(new StopShooterTask());
+        return this;
+    }
+
+    private class LiftTask implements Task{
+        private long endTime;
+        private long delayMs = 1000;
+        public void begin(){
+            bessie.flicky.setPosition(.5);
+            endTime = System.currentTimeMillis() + delayMs;
+        }
+        public boolean isComplete(){;
+            if(System.currentTimeMillis() < endTime) {
                 return false;
             } else {
                 bessie.flicky.setPosition(0);
@@ -137,7 +173,7 @@ public class BessieController {
         LiftTask(){}
     }
 
-    public BessieController Lift(){
+    public BessieController lift(){
         tasks.add(new LiftTask());
         return this;
     }

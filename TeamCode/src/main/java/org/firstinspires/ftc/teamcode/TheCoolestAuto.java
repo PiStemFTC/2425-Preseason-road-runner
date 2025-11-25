@@ -29,6 +29,7 @@ public class TheCoolestAuto extends OpMode {
         Init,
         FindTag,
         Position,
+        Launch,
         Done;
     }
     private State state = State.Init;
@@ -77,7 +78,7 @@ public class TheCoolestAuto extends OpMode {
                 xError = llResult.getTx() - targetTx;
                 yError = llResult.getTy() - targetTy;
                 if(Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0){
-                    state = State.Done;
+                    state = State.Launch;
                 } else {
                     bessieController.lowPower()
                             .forwardBy((float) -yError * .05f)
@@ -103,6 +104,13 @@ public class TheCoolestAuto extends OpMode {
                 }
                 break;
             case Position:
+                break;
+            case Launch:
+                bessieController.startShooter()
+                        .lift()
+                        .delay(1000)
+                        .stopShooter();
+                state = State.Done;
                 break;
         }
         telemetry.addData("State", state);

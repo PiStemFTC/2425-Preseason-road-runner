@@ -145,7 +145,7 @@ public class Bessie {
         double[] powers = {0, 0, 0, 0};
 
         if(fwdMoving) {
-            long pos2 = fr.getCurrentPosition();
+            long pos2 = -fr.getCurrentPosition();
             float inches = distance(startTicks, pos2);
             fwdError = targetDistance - inches;
             fwdError = fwdError / Math.abs(targetDistance);
@@ -180,7 +180,7 @@ public class Bessie {
 
         updateMGR();
         telemetry.addData("error", fwdError);
-        telemetry.addData("position", br.getCurrentPosition());
+        telemetry.addData("position", -fr.getCurrentPosition());
         telemetry.addData("strafe error", strafeError);
 
     }
@@ -288,7 +288,7 @@ public class Bessie {
     public void forwardBy(float inches){
         fwdMoving = true;
         targetDistance = inches;
-        startTicks = fr.getCurrentPosition();
+        startTicks = -fr.getCurrentPosition();
     }
 
     public void strafeBy(float inches){
