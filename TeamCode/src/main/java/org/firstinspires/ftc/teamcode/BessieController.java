@@ -119,10 +119,11 @@ public class BessieController {
     }
 
     private class StartShooterTask implements Task{
+        double power;
         private long endTime;
         private long delayMs = 750;
         public void begin(){
-            bessie.startShooter();
+            bessie.shooter.setPower(power);
             endTime = System.currentTimeMillis() + delayMs;
         }
         public boolean isComplete(){;
@@ -132,11 +133,13 @@ public class BessieController {
                 return true;
             }
         }
-        StartShooterTask(){}
+        StartShooterTask(double power){
+            this.power = power;
+        }
     }
 
-    public BessieController startShooter(){
-        tasks.add(new StartShooterTask());
+    public BessieController startShooter(double power){
+        tasks.add(new StartShooterTask(power));
         return this;
     }
 
@@ -157,7 +160,7 @@ public class BessieController {
 
     private class LiftTask implements Task{
         private long endTime;
-        private long delayMs = 1000;
+        private long delayMs = 750;
         public void begin(){
             bessie.flicky.setPosition(.5);
             endTime = System.currentTimeMillis() + delayMs;
@@ -178,6 +181,37 @@ public class BessieController {
         return this;
     }
 
+    private class MGRNextIntakePosTask implements Task{
+        public void begin(){
+            bessie.MGRNextIntakePosition();
+        }
+
+        @Override
+        public boolean isComplete() {
+            return true;
+        }
+    }
+
+    public BessieController mgrNextIntakePos(){
+        tasks.add(new MGRNextIntakePosTask());
+        return this;
+    }
+
+    private class MGRNextLaunchPosTask implements Task{
+        public void begin(){
+            bessie.MGRNextLaunchPosition();
+        }
+
+        @Override
+        public boolean isComplete() {
+            return true;
+        }
+    }
+
+    public BessieController mgrNextLaunchPos(){
+        tasks.add(new MGRNextLaunchPosTask());
+        return this;
+    }
 
     private class ForwardByTask implements Task{
         private float distance;

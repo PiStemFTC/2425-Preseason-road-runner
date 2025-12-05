@@ -114,16 +114,16 @@ public class Bessie {
         MGRpos = analogInput.getVoltage();
         MGRerror = MGRDiff(MGRTargetVoltage, MGRpos);
 
-        if(MGRerror < -0.01){
-            double p = -MGRerror;
+        if(MGRerror < -0.005){
+            double p = -MGRerror*1.2;
             if(p > 0.15){
                 p = 0.15;
             }
             MGR.setPower(-p);
         }
 
-        if(MGRerror > 0.01){
-            double p = -MGRerror;
+        if(MGRerror > 0.005){
+            double p = -MGRerror*1.2;
             if(p < -0.15){
                 p = -0.15;
             }
@@ -186,7 +186,7 @@ public class Bessie {
     }
 
     private double MGRCalcIntakePosition(int position){
-      double positions[] = {.452, 1.553, 2.653};
+      double positions[] = {.53, 1.65, 2.78};
          return positions[position];
     }
 
@@ -199,7 +199,7 @@ public class Bessie {
     }
 
     private double MGRCalcLaunchPosition(int position){
-        double positions[] = {1.024, 2.074, 3.277};
+        double positions[] = {1.035, 2.145, 3.26};
         return positions[position];
     }
 
@@ -306,7 +306,7 @@ public class Bessie {
     }
 
     public void startShooter(){
-        shooter.setPower(1);
+        shooter.setPower(.4);
     }
 
     public void stopShooter(){

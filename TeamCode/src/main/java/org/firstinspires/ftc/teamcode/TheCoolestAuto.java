@@ -46,6 +46,7 @@ public class TheCoolestAuto extends OpMode {
         //move start here if limelight has delay
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP);
+        bessie.MGRNextLaunchPosition();
         telemetry.addLine("init complete");
     }
 
@@ -99,16 +100,31 @@ public class TheCoolestAuto extends OpMode {
                 if(tag != -1) {
                     tagID = tag;
                     bessieController
-                            .turnTo((float) Math.PI);
+                            .startShooter(.4f)
+                            .turnTo((float) Math.PI - .1f);
                     state = State.Position;
                 }
                 break;
             case Position:
                 break;
             case Launch:
-                bessieController.startShooter()
+                //bessie.shooter.setPower(.2);
+                bessieController
+                        .lift()
+                        .startShooter(.425f)
+                        .delay(50)
+                        // launch artifact 2
+                        .mgrNextLaunchPos()
+                        .delay(900)
+                        .lift()
+                        .startShooter(.45f)
+                        .delay(50)
+                        // launch artifact 3
+                        .mgrNextLaunchPos()
+                        .delay(900)
                         .lift()
                         .delay(1000)
+
                         .stopShooter();
                 state = State.Done;
                 break;
