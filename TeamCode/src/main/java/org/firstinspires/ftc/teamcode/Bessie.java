@@ -59,6 +59,10 @@ public class Bessie {
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
+    public enum MGRMode {
+        INTAKE, LAUNCH
+    }
+    public MGRMode mgrMode;
 
     private Telemetry telemetry;
 
@@ -191,6 +195,7 @@ public class Bessie {
     }
 
     public void MGRNextIntakePosition(){
+        mgrMode = MGRMode.INTAKE;
         MGRPositionIndex++;
         if(MGRPositionIndex > 2){
            MGRPositionIndex = MGRPositionIndex%3;
@@ -204,6 +209,7 @@ public class Bessie {
     }
 
     public void MGRNextLaunchPosition(){
+        mgrMode = MGRMode.LAUNCH;
         MGRPositionIndex++;
         if(MGRPositionIndex > 2){
             MGRPositionIndex = MGRPositionIndex%3;

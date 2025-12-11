@@ -92,19 +92,21 @@ public class Propel extends LinearOpMode {
 
         telemetry.update();
 
+        bessie.MGRNextIntakePosition();
+
         waitForStart();
         imu.resetYaw();
 
         boolean grab = true;
         while (opModeIsActive()) {
 
-            if (gamepad2.left_bumper) {
+            if (gamepad2.left_bumper && bessie.mgrMode == Bessie.MGRMode.INTAKE) {
                 bessie.spinny.setPower(1);
             } else {
                 bessie.spinny.setPower(0);
             }
             if (gamepad2.right_bumper) {
-                bessie.shooter.setPower(.5);
+                bessie.shooter.setPower(.65);
             } else {
                 bessie.shooter.setPower(0);
             }
