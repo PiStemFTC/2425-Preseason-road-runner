@@ -190,8 +190,8 @@ public class Bessie {
     }
 
     private double MGRCalcIntakePosition(int position){
-      double positions[] = {.53, 1.65, 2.78};
-         return positions[position];
+        double positions[] = {0.316, 1.413, 2.506};
+        return positions[position];
     }
 
     public void MGRNextIntakePosition(){
@@ -204,7 +204,7 @@ public class Bessie {
     }
 
     private double MGRCalcLaunchPosition(int position){
-        double positions[] = {1.035, 2.145, 3.26};
+        double positions[] = {0.836, 1.924, 3.063};
         return positions[position];
     }
 

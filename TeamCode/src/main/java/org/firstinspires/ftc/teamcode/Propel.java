@@ -100,11 +100,14 @@ public class Propel extends LinearOpMode {
         boolean grab = true;
         while (opModeIsActive()) {
 
-            if (gamepad2.left_bumper && bessie.mgrMode == Bessie.MGRMode.INTAKE) {
+            if (gamepad2.left_bumper) {
+                bessie.spinny.setPower(-1);
+            } else if (gamepad2.left_trigger > .1  && bessie.mgrMode == Bessie.MGRMode.INTAKE) {
                 bessie.spinny.setPower(1);
             } else {
                 bessie.spinny.setPower(0);
             }
+
             if (gamepad2.right_bumper) {
                 bessie.shooter.setPower(.65);
             } else {

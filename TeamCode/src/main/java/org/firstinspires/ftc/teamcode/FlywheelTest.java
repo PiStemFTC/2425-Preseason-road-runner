@@ -9,11 +9,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -21,10 +23,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
-@TeleOp(name="Propel_2", group="TeleOp")
-public class Propel_2 extends LinearOpMode {
+@TeleOp(name="FlywheelTest", group="TeleOp")
+public class FlywheelTest extends LinearOpMode {
 
     private IMU imu;
+
     //public DcMotor slide;
 
 
@@ -45,6 +48,8 @@ public class Propel_2 extends LinearOpMode {
     double heading;
     double lastHeading;
     double changeInHeading;
+    boolean dpadUpAlreadyPressed = false;
+    boolean dpadDownAlreadyPressed = false;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -88,11 +93,69 @@ public class Propel_2 extends LinearOpMode {
 
         telemetry.update();
 
+        bessie.MGRNextIntakePosition();
+
         waitForStart();
         imu.resetYaw();
 
         boolean grab = true;
         while (opModeIsActive()) {
+
+            if (gamepad2.left_bumper) {
+                bessie.spinny.setPower(-1);
+            } else if (gamepad2.left_trigger > .1  && bessie.mgrMode == Bessie.MGRMode.INTAKE) {
+                bessie.spinny.setPower(1);
+            } else {
+                bessie.spinny.setPower(0);
+            }
+
+            if (gamepad2.right_bumper) {
+                bessie.shooter.setVelocity(2000);
+            } else {
+                bessie.shooter.setVelocity(0);
+            }
+
+            PIDFCoefficients coeffs = bessie.shooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+            telemetry.addData("P", coeffs.p);
+            telemetry.addData("F", coeffs.f);
+
+            coeffs.p = 10;
+            coeffs.f = 50;
+
+            bessie.shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+
+            double encoderTicksPerRev = 28;
+            double ticksPerSecond = bessie.shooter.getVelocity();
+            double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 60.0;
+            telemetry.addData("Shooter RPM", shooterRPM);
+
+            // if (gamepad2.a) {
+            //   bessie.MGR.setPower(.15);
+            // bessie.MGR.setDirection(com.qualcomm.robotcore.hardware.CRServo.Direction.REVERSE);
+            //} else if (gamepad2.y) {
+            //  bessie.MGR.setPower(-.15);
+            //} else {
+            //  bessie.MGR.setPower(0);
+            //}
+
+            if(gamepad2.dpad_up && !dpadUpAlreadyPressed){
+                dpadUpAlreadyPressed = true;
+                bessie.MGRNextLaunchPosition();
+            } else if(!gamepad2.dpad_up){ dpadUpAlreadyPressed = false; }
+
+            if(gamepad2.dpad_down && !dpadDownAlreadyPressed){
+                dpadDownAlreadyPressed = true;
+                bessie.MGRNextIntakePosition();
+            } else if(!gamepad2.dpad_down){ dpadDownAlreadyPressed = false; }
+
+            if(gamepad2.x){
+                bessie.flicky.setPosition(.5);
+            } else{
+                bessie.flicky.setPosition(0.02);
+            }
+
+            telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
+            telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -129,7 +192,6 @@ public class Propel_2 extends LinearOpMode {
             }
 
             for (int i = 0; i < 4; ++i) {
-                // XXX TODO Use Hydra motors array instead of this copy
                 bessie.motors[i].setPower(powers[i]);
             }
 
@@ -149,7 +211,7 @@ public class Propel_2 extends LinearOpMode {
                 turning = false;
             }
 
-
+            bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();
             telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
             telemetry.addData("error", error);
