@@ -49,6 +49,8 @@ public class Propel extends LinearOpMode {
     double changeInHeading;
     boolean dpadUpAlreadyPressed = false;
     boolean dpadDownAlreadyPressed = false;
+    double distance;
+    int velocity = -1;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -61,29 +63,20 @@ public class Propel extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        boolean launchEnabled = false;
 
         int slidePos = 0;
+        if (velocity == -1){
+          velocity = 1000;
+        }
         //telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        // TODO XXX MecanumDrive is not available in this version of the repository
-        //MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-
-        // TODO XXX Create an instance of Hydra (Hydra.java)
         Bessie bessie = new Bessie(telemetry);
         bessie.initializeHardware(hardwareMap);
 
+        bessie.limelight.pipelineSwitch(0);
+        bessie.limelight.start();
 
-        // TODO XXX Use the motors mapped by Hydra
-        //hydra.limelight.pipelineSwitch(0);
-
-        /*
-         * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
-         */
-        //  hydra.limelight.start();
-
-        // TODO XXX Initialize the IMU;
-        // * Create an IMU (look up how to accomplish this)
-        //   - part of the initialization will be assigning the orientation of the Control Hub
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -99,6 +92,8 @@ public class Propel extends LinearOpMode {
 
         boolean grab = true;
         while (opModeIsActive()) {
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            bessie.limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
 
             if (gamepad2.left_bumper) {
                 bessie.spinny.setPower(-1);
@@ -108,11 +103,11 @@ public class Propel extends LinearOpMode {
                 bessie.spinny.setPower(0);
             }
 
-            if (gamepad2.right_bumper) {
-                bessie.shooter.setPower(.65);
-            } else {
-                bessie.shooter.setPower(0);
-            }
+            //if (gamepad2.right_bumper) {
+            //    bessie.shooter.setPower(.65);
+            //} else {
+            //    bessie.shooter.setPower(0);
+            //}
 
             double encoderTicksPerRev = 28;
             double ticksPerSecond = bessie.shooter.getVelocity();
@@ -128,15 +123,31 @@ public class Propel extends LinearOpMode {
               //  bessie.MGR.setPower(0);
             //}
 
-            if(gamepad2.dpad_up && !dpadUpAlreadyPressed){
-                dpadUpAlreadyPressed = true;
+            //if(gamepad2.dpad_up && !dpadUpAlreadyPressed){
+            if (gamepad2.dpadUpWasPressed()) {
+                launchEnabled = true;
                 bessie.MGRNextLaunchPosition();
-            } else if(!gamepad2.dpad_up){ dpadUpAlreadyPressed = false; }
+            }// else if(!gamepad2.dpad_up){ dpadUpAlreadyPressed = false; }
 
-            if(gamepad2.dpad_down && !dpadDownAlreadyPressed){
-                dpadDownAlreadyPressed = true;
+            //if(gamepad2.dpad_down && !dpadDownAlreadyPressed){
+            if (gamepad2.dpadDownWasPressed()) {
+                launchEnabled = false;
                 bessie.MGRNextIntakePosition();
-            } else if(!gamepad2.dpad_down){ dpadDownAlreadyPressed = false; }
+            }// else if(!gamepad2.dpad_down){ dpadDownAlreadyPressed = false; }
+
+            if(gamepad2.dpadLeftWasPressed()){
+                velocity -= 100;
+            }
+
+            if(gamepad2.dpadRightWasPressed()){
+                velocity += 100;
+            }
+
+            if (launchEnabled) {
+                bessie.shooter.setVelocity(velocity);
+            } else {
+                bessie.shooter.setVelocity(0);
+            }
 
             if(gamepad2.x){
                 bessie.flicky.setPosition(.5);
@@ -146,6 +157,7 @@ public class Propel extends LinearOpMode {
 
             telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
             telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
+            telemetry.addData(String.valueOf(velocity), "Velocity");
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -154,7 +166,7 @@ public class Propel extends LinearOpMode {
 
             // TODO XXX Use the IMU for the heading
             // heading= (drive.pose.heading.toDouble());
-            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            //YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             heading = orientation.getYaw(AngleUnit.RADIANS);
             changeInHeading = circleDiff(lastHeading, heading);
             lastHeading = heading;
@@ -212,11 +224,25 @@ public class Propel extends LinearOpMode {
             if (dT > 0) {
                 telemetry.addData("radians/ms", changeInHeading / dT);
             }
+            monkeyBuisness(bessie);
             telemetry.update();
         }
     }
-    private void monkeyBuisness(Hydra hydra) {
-        LLResult result = hydra.limelight.getLatestResult();
+
+    public double getDistanceFromTag(double ta){
+    double scale = 5002.399;
+    //double distance = (scale*Math.pow(ta,-2));
+
+    double distance = 14.62196 + (450.9122 - 14.62196)/(1 + Math.pow(ta/0.06846392, 0.7124414));
+    return distance;
+    }
+
+    public double getVelocityFromDistance(double distance) {
+        return 8.249527 * distance + 1068.729;
+    }
+
+    private void monkeyBuisness(Bessie bessie) {
+        LLResult result = bessie.limelight.getLatestResult();
 
         if (result.isValid()) {
             Pose3D botpose = result.getBotpose();
@@ -224,7 +250,10 @@ public class Propel extends LinearOpMode {
             telemetry.addData("txnc", result.getTxNC());
             telemetry.addData("ty", result.getTy());
             telemetry.addData("tync", result.getTyNC());
-
+            telemetry.addData("Target Area:", result.getTa());
+            distance = getDistanceFromTag(result.getTa());
+            velocity = (int)getVelocityFromDistance(distance);
+            telemetry.addData("Distance", distance);
             telemetry.addData("Botpose", botpose.toString());
         }
     }

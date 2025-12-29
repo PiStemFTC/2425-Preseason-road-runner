@@ -109,11 +109,11 @@ public class FlywheelTest extends LinearOpMode {
                 bessie.spinny.setPower(0);
             }
 
-            if (gamepad2.right_bumper) {
-                bessie.shooter.setVelocity(2000);
-            } else {
-                bessie.shooter.setVelocity(0);
-            }
+            //if (gamepad2.right_bumper) {
+            //    bessie.shooter.setVelocity(2000);
+            //} else {
+            //    bessie.shooter.setVelocity(0);
+           // }
 
             PIDFCoefficients coeffs = bessie.shooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
             telemetry.addData("P", coeffs.p);
@@ -141,11 +141,13 @@ public class FlywheelTest extends LinearOpMode {
             if(gamepad2.dpad_up && !dpadUpAlreadyPressed){
                 dpadUpAlreadyPressed = true;
                 bessie.MGRNextLaunchPosition();
+                bessie.shooter.setVelocity(2000);
             } else if(!gamepad2.dpad_up){ dpadUpAlreadyPressed = false; }
 
             if(gamepad2.dpad_down && !dpadDownAlreadyPressed){
                 dpadDownAlreadyPressed = true;
                 bessie.MGRNextIntakePosition();
+                bessie.shooter.setVelocity(0);
             } else if(!gamepad2.dpad_down){ dpadDownAlreadyPressed = false; }
 
             if(gamepad2.x){
