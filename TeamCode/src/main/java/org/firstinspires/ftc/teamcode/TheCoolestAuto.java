@@ -30,6 +30,7 @@ public class TheCoolestAuto extends OpMode {
         FindTag,
         Position,
         Launch,
+        Intake,
         Done;
     }
     private State state = State.Init;
@@ -65,10 +66,8 @@ public class TheCoolestAuto extends OpMode {
         limelight.start();
     }
 
-    boolean firstCalled = false;
     @Override
     public void loop() {
-        if(firstCalled) {
             int tag = -1;
             int targetTx = -7;
             int targetTy = 16;
@@ -105,12 +104,13 @@ public class TheCoolestAuto extends OpMode {
                 case Init:
                     if (team == Team.Blue) {
                         bessieController
-                                .delay(10000)
+                                .delay(1000)
+                                .lift()
                                 .forwardBy(30)
                                 .turnTo((float) (Math.PI / 2));
                     } else {
                         bessieController
-                                .delay(10000)
+                                .lift()
                                 .forwardBy(30)
                                 .turnTo((float) -(Math.PI / 2));
                     }
@@ -134,26 +134,51 @@ public class TheCoolestAuto extends OpMode {
                 case Position:
                     break;
                 case Launch:
-                    //bessie.shooter.setPower(.2);
-                    bessieController
-                            .lift()
-                            .startShooter(.625f)
-                            .delay(50)
-                            // launch artifact 2
-                            .mgrNextLaunchPos()
-                            .delay(900)
-                            .lift()
-                            .startShooter(.65f)
-                            .delay(50)
-                            // launch artifact 3
-                            .mgrNextLaunchPos()
-                            .delay(900)
-                            .lift()
-                            .delay(1000)
+//                    bessieController
+//                            .delay(2500)
+//                            .lift()
+//                            .delay(2500)
+//                            //.lift()
+//                            .delay(2500)
+//                            //.log("Done");
+//                    ;
 
-                            .stopShooter();
-                    state = State.Done;
+                    if (true) {
+                        bessieController
+                                .lift()
+                                .delay(200)
+                                .startShooter(.625f)
+                                .delay(50)
+                                // launch artifact 2
+                                .mgrNextLaunchPos()
+                                .delay(600)
+                                .lift()
+                                .startShooter(.65f)
+                                .delay(50)
+                                // launch artifact 3
+                                .mgrNextLaunchPos()
+                                .delay(600)
+                                .lift()
+                                .delay(1000)
+                                .stopShooter();
+                    }
+                    state = State.Intake;
                     break;
+                case Intake:
+                    if(true){
+                        bessieController
+                                .mgrNextIntakePos()
+                                .turnTo((float)(-(Math.PI)/6))
+                                .strafeBy(-12);
+                                for(int i = 0; i < 4; i++){
+                                    bessieController
+                                    .forwardBy(4)
+                                    .startSpinny(1)
+                                    .delay(1)
+                                    .stopSpinny();
+                        }
+
+                    }
             }
             telemetry.addData("State", state);
             telemetry.addData("Counter", counter);
@@ -162,14 +187,5 @@ public class TheCoolestAuto extends OpMode {
             bessieController.update();
             bessie.update();
             telemetry.update();
-        }else{
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                //throw new RuntimeException(e);
-            }
-            firstCalled = true;
-
         }
-    }
-}
+        }

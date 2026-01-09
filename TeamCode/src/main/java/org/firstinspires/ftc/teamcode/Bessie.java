@@ -1,23 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -63,8 +57,9 @@ public class Bessie {
         INTAKE, LAUNCH
     }
     public MGRMode mgrMode;
+    public MGRController mgrController;
 
-    private Telemetry telemetry;
+    public Telemetry telemetry;
 
     final double[] forwardDirection = {
             1, 1,
@@ -99,7 +94,7 @@ public class Bessie {
         spinny.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        mgrController = new MGRController(1.0, .01, .07);
 
         motors = new DcMotor[]{fl,fr,bl,br};
 
@@ -111,7 +106,12 @@ public class Bessie {
 
     }
 
-    public void updateMGR(){
+    public void updateMGR() {
+        MGR.setPower(mgrController.calculate(
+                analogInput.getVoltage()));
+    }
+
+    public void updateMGR_(){
         double MGRpos = 0;
         double MGRerror = 0;
         //MGR position update
@@ -201,6 +201,7 @@ public class Bessie {
            MGRPositionIndex = MGRPositionIndex%3;
         }
         MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
+        mgrController.setSetpoint(MGRTargetVoltage);
     }
 
     private double MGRCalcLaunchPosition(int position){
@@ -215,6 +216,7 @@ public class Bessie {
             MGRPositionIndex = MGRPositionIndex%3;
         }
         MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
+        mgrController.setSetpoint(MGRTargetVoltage);
     }
 
     private double circleDiff(double a1, double a2) {

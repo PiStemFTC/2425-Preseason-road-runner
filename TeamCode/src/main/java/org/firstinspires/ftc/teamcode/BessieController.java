@@ -5,6 +5,7 @@ import java.util.Queue;
 
 public class BessieController {
     private Bessie bessie;
+    private String text = "";
     public enum State {
         Idle,
         TaskRunning,
@@ -48,6 +49,7 @@ public class BessieController {
             case Done:
                 break;
         }
+        bessie.telemetry.addLine(text);
     }
 
     private class DelayTask implements Task {
@@ -64,6 +66,19 @@ public class BessieController {
 
     public BessieController delay(long ms){
         tasks.add(new DelayTask(ms));
+        return this;
+    }
+
+    private void setText(String text) { this.text = text; }
+    private class LogTask implements Task {
+        private String text;
+        LogTask(String text) { this.text = text; }
+        public void begin() { setText(text); }
+        public boolean isComplete() { return true; }
+    }
+
+    public BessieController log(String text) {
+        tasks.add(new LogTask(text));
         return this;
     }
 
@@ -158,22 +173,66 @@ public class BessieController {
         return this;
     }
 
-    private class LiftTask implements Task{
+    private class StartSpinnyTask implements Task{
+        double power;
         private long endTime;
         private long delayMs = 750;
         public void begin(){
-            bessie.flicky.setPosition(.5);
+            bessie.spinny.setPower(power);
             endTime = System.currentTimeMillis() + delayMs;
         }
         public boolean isComplete(){;
             if(System.currentTimeMillis() < endTime) {
                 return false;
             } else {
+                return true;
+            }
+        }
+        StartSpinnyTask(double power){
+            this.power = power;
+        }
+    }
+
+    public BessieController startSpinny(double power){
+        tasks.add(new StartSpinnyTask(power));
+        return this;
+    }
+
+    private class StopSpinnyTask implements Task{
+        public void begin(){
+            bessie.stopSpinny();
+        }
+        public boolean isComplete(){;
+            return true;
+        }
+        StopSpinnyTask(){}
+    }
+
+    public BessieController stopSpinny(){
+        tasks.add(new StopSpinnyTask());
+        return this;
+    }
+
+    private class LiftTask implements Task{
+        private long endTime;
+        private long delayMs = 600;
+        public void begin(){
+            bessie.flicky.setPosition(.5);
+            endTime = System.currentTimeMillis() + delayMs;
+            text = "endTime: " + endTime + "(" + System.currentTimeMillis() + ")";
+
+        }
+        public boolean isComplete(){;
+            if (System.currentTimeMillis() < endTime) {
+                return false;
+            } else {
                 bessie.flicky.setPosition(0);
                 return true;
             }
         }
-        LiftTask(){}
+        LiftTask() {
+            endTime = Long.MAX_VALUE;
+        }
     }
 
     public BessieController lift(){
