@@ -154,7 +154,7 @@ public class Bessie {
             fwdError = targetDistance - inches;
             fwdError = fwdError / Math.abs(targetDistance);
         } else if(strafeMoving){
-            long pos2 = br.getCurrentPosition();
+            long pos2 = -br.getCurrentPosition();
             float inches = distance(startTicks, pos2);
             strafeError = strafeTargetDistance - inches;
             strafeError = strafeError / Math.abs(strafeTargetDistance);
@@ -164,7 +164,7 @@ public class Bessie {
             fwdMoving = false;
         }
 
-        if(Math.abs(strafeError) < 0.09){
+        if(Math.abs(strafeError) < 0.2){
             strafeMoving = false;
         }
 
@@ -205,7 +205,7 @@ public class Bessie {
     }
 
     private double MGRCalcLaunchPosition(int position){
-        double positions[] = {0.836, 1.924, 3.063};
+        double positions[] = {0.8, 1.915, 3.019};
         return positions[position];
     }
 
@@ -302,7 +302,7 @@ public class Bessie {
     public void strafeBy(float inches){
         strafeMoving = true;
         strafeTargetDistance = inches;
-        startTicks = br.getCurrentPosition();
+        startTicks = -br.getCurrentPosition();
     }
 
     public void startSpinny(){

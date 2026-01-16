@@ -25,6 +25,7 @@ public class TheCoolestAuto extends OpMode {
     private double xError;
     private double yError;
     private int tagID;
+    private boolean park = false;
     public enum State {
         Init,
         FindTag,
@@ -162,23 +163,86 @@ public class TheCoolestAuto extends OpMode {
                                 .delay(1000)
                                 .stopShooter();
                     }
-                    state = State.Intake;
+                    if (park) {
+                        if (team == Team.Blue){
+                            bessieController.strafeBy(-20);
+                        state = State.Done;
+                        } else{
+                                bessieController.strafeBy(20);
+                                state = State.Done;
+                        }
+                    }
+                    else {
+                        state = State.Intake;
+                    }
                     break;
                 case Intake:
-                    if(true){
+                    if(team == Team.Blue){
                         bessieController
                                 .mgrNextIntakePos()
-                                .turnTo((float)(-(Math.PI)/6))
-                                .strafeBy(-12);
-                                for(int i = 0; i < 4; i++){
-                                    bessieController
-                                    .forwardBy(4)
-                                    .startSpinny(1)
-                                    .delay(1)
-                                    .stopSpinny();
+                                .startSpinny(1)
+                                .turnTo((float)Math.toRadians(-140.0))
+                                .strafeBy(-24)
+                                .forwardBy(8)
+                                .waitWhileMoving()
+                                .delay(350)
+                                .mgrNextIntakePos()
+                                .delay(350);
+
+                        for(int i = 0; i < 2; i++){
+                            bessieController
+                                    .forwardBy(3)
+                                    .waitWhileMoving()
+                                    .delay(350)
+                                    .mgrNextIntakePos()
+                                    .delay(350);
                         }
+                        //bessieController.stopSpinny();
+
+                        // move to launch
+                        bessieController
+                                .turnTo((float)Math.toRadians(180))
+                                .startShooter(.6)
+                                .mgrNextLaunchPos()
+                                .strafeBy(28)
+                                .waitWhileMoving()
+                                ;
+
+                    } else{
+                        bessieController
+                                .mgrNextIntakePos()
+                                .startSpinny(1)
+                                .turnTo((float)Math.toRadians(-220.0))
+                                .strafeBy(26)
+                                .forwardBy(8)
+                                .waitWhileMoving()
+                                .delay(350)
+                                .mgrNextIntakePos()
+                                .delay(350);
+
+                        for(int i = 0; i < 2; i++){
+                            bessieController
+                                    .forwardBy(3)
+                                    .waitWhileMoving()
+                                    .delay(350)
+                                    .mgrNextIntakePos()
+                                    .delay(350);
+                        }
+                        //bessieController.stopSpinny();
+
+                        // move to launch
+                        bessieController
+                                .turnTo((float)Math.toRadians(-180))
+                                .startShooter(.6)
+                                .mgrNextLaunchPos()
+                                .strafeBy(-28)
+                                .waitWhileMoving()
+                        ;
 
                     }
+                    park = true;
+                    state = State.Launch;
+                    break;
             }
             telemetry.addData("State", state);
             telemetry.addData("Counter", counter);
