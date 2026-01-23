@@ -53,6 +53,7 @@ public class Bessie {
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
+    private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
         INTAKE, LAUNCH
     }
@@ -96,6 +97,10 @@ public class Bessie {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         mgrController = new MGRController(1.0, .01, .07);
 
+        //axon = new org.firstinspires.ftc.teamcode.subsystems.RTPAxon(MGR, analogInput);
+        //axon.setMaxPower(0.1);  // Limit max power to 50%
+        //axon.setPidCoeffs(1.0, 0.0005, 0.0025);  // Set PID coefficients
+
         motors = new DcMotor[]{fl,fr,bl,br};
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -109,6 +114,7 @@ public class Bessie {
     public void updateMGR() {
         MGR.setPower(mgrController.calculate(
                 analogInput.getVoltage()));
+        //axon.update();
     }
 
     public void updateMGR_(){
@@ -191,6 +197,7 @@ public class Bessie {
 
     private double MGRCalcIntakePosition(int position){
         double positions[] = {0.316, 1.413, 2.506};
+        //double positions[] = {0.0+60.0, 120.0+60.0, 240.0+60.0};
         return positions[position];
     }
 
@@ -202,10 +209,13 @@ public class Bessie {
         }
         MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
         mgrController.setSetpoint(MGRTargetVoltage);
+
+        //axon.setTargetRotation(MGRTargetVoltage);
     }
 
     private double MGRCalcLaunchPosition(int position){
         double positions[] = {0.8, 1.915, 3.019};
+        //double positions[] = {0.0, 120.0, 240.0};
         return positions[position];
     }
 
@@ -217,6 +227,8 @@ public class Bessie {
         }
         MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
         mgrController.setSetpoint(MGRTargetVoltage);
+
+        //axon.setTargetRotation(MGRTargetVoltage);
     }
 
     private double circleDiff(double a1, double a2) {
@@ -362,6 +374,7 @@ public class Bessie {
         telemetry.addData("Detected Color", "Unknown");
     }
 
+        //telemetry.addLine(axon.log());
         telemetry.update();
 }
 

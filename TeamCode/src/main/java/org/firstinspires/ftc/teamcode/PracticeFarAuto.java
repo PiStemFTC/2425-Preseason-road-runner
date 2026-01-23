@@ -14,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.List;
 
-@Autonomous(name="GoalAuto", group="Autonomous", preselectTeleOp = "Propel")
-public class TheCoolestAuto extends OpMode {
+@Autonomous(name = "DONT.CLICK.ME.YET", group = "Autonomous", preselectTeleOp = "Propel")
+public class PracticeFarAuto extends OpMode {
     private Limelight3A limelight;
     private IMU imu;
     private Bessie bessie;
@@ -26,18 +26,24 @@ public class TheCoolestAuto extends OpMode {
     private double yError;
     private int tagID;
     private boolean park = false;
+
     public enum State {
         Init,
         FindTag,
         Position,
         Launch,
         Intake,
+        WaitWhileMoving,
         Done;
     }
+
     private State state = State.Init;
-    private enum Team{
+    private State nextState = State.Done;
+
+    private enum Team {
         Red, Blue
     }
+
     private Team team = Team.Blue;
 
 
@@ -53,9 +59,9 @@ public class TheCoolestAuto extends OpMode {
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP);
         bessie.MGRNextLaunchPosition();
-        if(gamepad1.x){
+        if (gamepad1.x) {
             team = Team.Blue;
-        } else{
+        } else {
             team = Team.Red;
         }
         telemetry.addLine(team.toString());
@@ -102,32 +108,37 @@ public class TheCoolestAuto extends OpMode {
             }
         }
         switch (state) {
+            case WaitWhileMoving:
+                if (bessieController.isDone()) {
+                    state = nextState;
+                    nextState = State.Done;
+                }
+                break;
             case Init:
                 if (team == Team.Blue) {
                     bessieController
                             .delay(1000)
-                            .lift()
-                            .forwardBy(30)
-                            .turnTo((float) (Math.PI / 2));
+                            .lift();
                 } else {
                     bessieController
-                            .lift()
-                            .forwardBy(30)
-                            .turnTo((float) -(Math.PI / 2));
+                            .delay(1000)
+                            .lift();
                 }
                 state = State.FindTag;
                 break;
             case FindTag:
-                if (tag != -1) {
+                if (!bessie.isMoving() && tag != -1) {
                     tagID = tag;
                     if (team == Team.Blue) {
                         bessieController
-                                .startShooter(.6f)
-                                .turnTo((float) Math.PI - .1f);
+                                .forwardBy(5)
+                                .startShooter(.8f)
+                                .turnTo((float) (Math.PI / (8.5)));
                     } else {
                         bessieController
-                                .startShooter(.6f)
-                                .turnTo((float) -(Math.PI - .1f));
+                                .forwardBy(5)
+                                .startShooter(.8f)
+                                .turnTo((float) -(Math.PI / 8.5));
                     }
                     state = State.Position;
                 }
@@ -135,30 +146,21 @@ public class TheCoolestAuto extends OpMode {
             case Position:
                 break;
             case Launch:
-//                    bessieController
-//                            .delay(2500)
-//                            .lift()
-//                            .delay(2500)
-//                            //.lift()
-//                            .delay(2500)
-//                            //.log("Done");
-//                    ;
-
+                //bessie.shooter.setPower(.2);
                 if (true) {
                     bessieController
                             .lift()
-                            .delay(200)
-                            .startShooter(.625f)
+                            .startShooter(.825f)
                             .delay(50)
                             // launch artifact 2
                             .mgrNextLaunchPos()
-                            .delay(600)
+                            .delay(900)
                             .lift()
-                            .startShooter(.65f)
+                            .startShooter(.85f)
                             .delay(50)
                             // launch artifact 3
                             .mgrNextLaunchPos()
-                            .delay(600)
+                            .delay(900)
                             .lift()
                             .delay(1000)
                             .stopShooter();
@@ -172,23 +174,26 @@ public class TheCoolestAuto extends OpMode {
                         state = State.Done;
                     }
                 } else {
-                    state = State.Intake;
+                    state = State.WaitWhileMoving;
+                    nextState = State.Intake;
                 }
                 break;
             case Intake:
                 if (team == Team.Blue) {
                     bessieController
+                            //get lined up with white line
                             .mgrNextIntakePos()
                             .startSpinny(1)
-                            .turnTo((float) Math.toRadians(-140.0))
-                            .strafeBy(-24)
-                            .forwardBy(8)
+                            .turnTo((float) Math.toRadians(90))
+                            .strafeBy(-20)
+                            .forwardBy(12)
                             .waitWhileMoving()
                             .delay(350)
                             .mgrNextIntakePos()
                             .delay(350);
 
-                    for (int i = 0; i < 2; i++) {
+                    for (int i = 0; i < 3; i++) {
+                        //intake all 3 balls
                         bessieController
                                 .forwardBy(3)
                                 .waitWhileMoving()
@@ -200,26 +205,29 @@ public class TheCoolestAuto extends OpMode {
 
                     // move to launch
                     bessieController
-                            .turnTo((float) Math.toRadians(180))
+                            .turnTo((float) Math.toRadians(45))
                             .startShooter(.6)
                             .mgrNextLaunchPos()
-                            .strafeBy(28)
+                            .forwardBy(-12)
                             .waitWhileMoving()
                     ;
 
                 } else {
                     bessieController
+                            //red side
+                            //get lined up with white line
                             .mgrNextIntakePos()
                             .startSpinny(1)
-                            .turnTo((float) Math.toRadians(-220.0))
-                            .strafeBy(26)
-                            .forwardBy(8)
+                            .turnTo((float) Math.toRadians(-90))
+                            .strafeBy(-20)
+                            .forwardBy(12)
                             .waitWhileMoving()
                             .delay(350)
                             .mgrNextIntakePos()
                             .delay(350);
 
-                    for (int i = 0; i < 2; i++) {
+                    for (int i = 0; i < 3; i++) {
+                        //intake all 3 balls
                         bessieController
                                 .forwardBy(3)
                                 .waitWhileMoving()
@@ -231,25 +239,28 @@ public class TheCoolestAuto extends OpMode {
 
                     // move to launch
                     bessieController
-                            .turnTo((float) Math.toRadians(-180))
-                            .startShooter(.6)
+                            .turnTo((float) Math.toRadians(-18))
+                            .strafeBy(-10)
+                            .delay(1000)
+                            .startShooter(.82)
                             .mgrNextLaunchPos()
-                            .strafeBy(-28)
+                            .forwardBy(-12)
                             .waitWhileMoving()
                     ;
 
                 }
-                park = true;
-                state = State.Launch;
+                //park = true;
+                state = State.WaitWhileMoving;
+                nextState = State.Launch;
                 break;
         }
 
-            telemetry.addData("State", state);
-            telemetry.addData("Counter", counter);
-            telemetry.addData("X Error", xError);
-            telemetry.addData("Y Error", yError);
-            bessieController.update();
-            bessie.update();
-            telemetry.update();
-        }
-        }
+        telemetry.addData("State", state);
+        telemetry.addData("Queue Depth", bessieController.queueSize());
+        telemetry.addData("X Error", xError);
+        telemetry.addData("Y Error", yError);
+        bessieController.update();
+        bessie.update();
+        telemetry.update();
+    }
+}

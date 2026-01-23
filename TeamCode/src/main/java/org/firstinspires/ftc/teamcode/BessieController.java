@@ -29,6 +29,7 @@ public class BessieController {
         return state == State.Idle;
     }
     public boolean isDone() { return state == State.Done; }
+    public int queueSize() { return tasks.size(); }
     public void update(){
         switch (state){
             case Idle:
