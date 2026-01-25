@@ -63,6 +63,7 @@ public class Propel extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        long ticks = 0;
         boolean launchEnabled = false;
 
         int slidePos = 0;
@@ -155,6 +156,10 @@ public class Propel extends LinearOpMode {
                 bessie.flicky.setPosition(0.02);
             }
 
+            if(gamepad1.y){
+                bessie.startReadColors();
+            }
+
             telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
             telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
             telemetry.addData(String.valueOf(velocity), "Velocity");
@@ -213,8 +218,14 @@ public class Propel extends LinearOpMode {
                 turning = false;
             }
 
+
+            if (ticks % 20 == 0)
+                bessie.colorSensor();
+            ticks++;
             bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();
+
+            telemetry.addData("Color", bessie.currentColor);
             telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
             telemetry.addData("error", error);
             //telemetry.addData("altError", altError);
@@ -255,6 +266,7 @@ public class Propel extends LinearOpMode {
             velocity = (int)getVelocityFromDistance(distance);
             telemetry.addData("Distance", distance);
             telemetry.addData("Botpose", botpose.toString());
+
         }
     }
 }

@@ -103,14 +103,16 @@ public class TheCoolestAuto extends OpMode {
         }
         switch (state) {
             case Init:
+                //bessieController.lift().delay(500).startReadColors();
                 if (team == Team.Blue) {
                     bessieController
-                            .delay(1000)
+                            .delay(250)
                             .lift()
                             .forwardBy(30)
                             .turnTo((float) (Math.PI / 2));
                 } else {
                     bessieController
+                            .delay(250)
                             .lift()
                             .forwardBy(30)
                             .turnTo((float) -(Math.PI / 2));
@@ -144,6 +146,7 @@ public class TheCoolestAuto extends OpMode {
 //                            //.log("Done");
 //                    ;
 
+                //bessieController.stopReadColors().mgrNextLaunchPos();
                 if (true) {
                     bessieController
                             .lift()
@@ -248,6 +251,7 @@ public class TheCoolestAuto extends OpMode {
             telemetry.addData("Counter", counter);
             telemetry.addData("X Error", xError);
             telemetry.addData("Y Error", yError);
+            telemetry.addData("Colors", bessie.allColors[0]+","+bessie.allColors[1]+","+bessie.allColors[2]);
             bessieController.update();
             bessie.update();
             telemetry.update();

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -26,7 +28,7 @@ import java.util.List;
 
 public class Bessie {
 
-    public final float TicksPerInch = 5000/15.5f;
+    public final float TicksPerInch = 5000 / 15.5f;
 
     public Limelight3A limelight;
     public DcMotor fl;
@@ -49,14 +51,20 @@ public class Bessie {
     boolean fwdMoving = false;
     boolean turning = false;
     boolean strafeMoving = false;
+    boolean MGRModeRunToPosition = true;
     float strafeTargetDistance = 0;
+    double MGREndPosition;
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
+    String currentColor = "unknown";
+    String allColors[] = {"unknown", "unknown", "unknown"};
     private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
+
     public enum MGRMode {
         INTAKE, LAUNCH
     }
+
     public MGRMode mgrMode;
     public MGRController mgrController;
 
@@ -72,11 +80,11 @@ public class Bessie {
             -1, 1,
             1, -1};
 
-    public Bessie(Telemetry telemetry){
+    public Bessie(Telemetry telemetry) {
         this.telemetry = telemetry;
     }
 
-    public void initializeHardware(HardwareMap hardwareMap){
+    public void initializeHardware(HardwareMap hardwareMap) {
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         fl = hardwareMap.get(DcMotor.class, "fl");
@@ -101,7 +109,7 @@ public class Bessie {
         //axon.setMaxPower(0.1);  // Limit max power to 50%
         //axon.setPidCoeffs(1.0, 0.0005, 0.0025);  // Set PID coefficients
 
-        motors = new DcMotor[]{fl,fr,bl,br};
+        motors = new DcMotor[]{fl, fr, bl, br};
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -112,39 +120,28 @@ public class Bessie {
     }
 
     public void updateMGR() {
-        MGR.setPower(mgrController.calculate(
-                analogInput.getVoltage()));
-        //axon.update();
+        if (MGRModeRunToPosition) {
+            MGR.setPower(mgrController.calculate(
+                    analogInput.getVoltage()));
+            //axon.update();
+        }else{
+            MGR.setPower(1);
+            int index = MGRLaunchIndexFromVoltage(analogInput.getVoltage());
+            if(index >= 0){
+               allColors[index] = currentColor;
+            }
+        }
     }
 
-    public void updateMGR_(){
-        double MGRpos = 0;
-        double MGRerror = 0;
-        //MGR position update
-        MGRpos = analogInput.getVoltage();
-        MGRerror = MGRDiff(MGRTargetVoltage, MGRpos);
-
-        if(MGRerror < -0.005){
-            double p = -MGRerror*1.2;
-            if(p > 0.15){
-                p = 0.15;
-            }
-            MGR.setPower(-p);
-        }
-
-        if(MGRerror > 0.005){
-            double p = -MGRerror*1.2;
-            if(p < -0.15){
-                p = -0.15;
-            }
-            MGR.setPower(-p);
-        }
-
-        telemetry.addData("index", MGRPositionIndex);
-        telemetry.addData("MGR error", MGRerror);
-        telemetry.addData("MGR position", MGRpos);
-        telemetry.addData("MGR target voltage", MGRTargetVoltage);
+    public void startReadColors(){
+        MGRModeRunToPosition = false;
     }
+
+    public void stopReadColors(){
+        MGRModeRunToPosition = true;
+    }
+
+
 
     public void update(){
         double hdgError = 0;
@@ -189,6 +186,7 @@ public class Bessie {
         }
 
         updateMGR();
+        //colorSensor();
         telemetry.addData("error", fwdError);
         telemetry.addData("position", -fr.getCurrentPosition());
         telemetry.addData("strafe error", strafeError);
@@ -213,10 +211,19 @@ public class Bessie {
         //axon.setTargetRotation(MGRTargetVoltage);
     }
 
+    double launchPositions[] = {0.8, 1.915, 3.019};
     private double MGRCalcLaunchPosition(int position){
-        double positions[] = {0.8, 1.915, 3.019};
         //double positions[] = {0.0, 120.0, 240.0};
-        return positions[position];
+        return launchPositions[position];
+    }
+
+    int MGRLaunchIndexFromVoltage(double v){
+        for(int i = 0; i < 2; i++){
+            if(Math.abs(launchPositions[i] - v) < .15){
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void MGRNextLaunchPosition(){
@@ -353,6 +360,7 @@ public class Bessie {
     float value = hsv[2];
 
     // Add telemetry data to monitor RGB, HSV values
+        /*
         telemetry.addData("Red", red);
         telemetry.addData("Green", green);
         telemetry.addData("Blue", blue);
@@ -360,22 +368,27 @@ public class Bessie {
         telemetry.addData("Saturation", saturation);
         telemetry.addData("Value", value);
 
+         */
+
     // Adjusted color detection logic
     // Detect Green color (hue range 90 - 160, saturation > 0.4, value > 0.2)
         if (hue >= 90 && hue <= 160 && saturation > 0.4 && value > 0.2) {
-        telemetry.addData("Detected Color", "Green");
+            currentColor = "green";
+        //telemetry.addData("Detected Color", "Green");
     }
     // Detect Purple color (hue range 230 - 280, saturation > 0.4, value > 0.2)
-        else if (hue >= 230 && hue <= 280 && saturation > 0.4 && value > 0.2) {
-        telemetry.addData("Detected Color", "Purple");
+        else if (hue >= 210 && hue <= 250 && saturation > 0.4 && value > 0.1) { //230,280,.2
+            currentColor = "purple";
+        //telemetry.addData("Detected Color", "Purple");
     }
     // If no color is detected, mark as Unknown
         else {
-        telemetry.addData("Detected Color", "Unknown");
+            currentColor = "unknown";
+        //telemetry.addData("Detected Color", "Unknown");
     }
 
         //telemetry.addLine(axon.log());
-        telemetry.update();
+        //telemetry.update();
 }
 
     public void RGBtoHSV(int r, int g, int b, float[] hsv) {

@@ -35,7 +35,7 @@ public class BessieController {
             case Idle:
                 //find next command to run
                 if (tasks.isEmpty()){
-                    state = State.Done;
+                    state = State.Idle;
                 }
                 else{
                     currentTask = tasks.remove();
@@ -326,6 +326,30 @@ public class BessieController {
 
     public BessieController turnToAsync(float heading){
         tasks.add(new TurnToAsyncTask(heading));
+        return this;
+    }
+
+    private class StartReadColors implements Task{
+        public void begin(){bessie.startReadColors();}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public BessieController startReadColors(){
+        tasks.add(new StartReadColors());
+        return this;
+    }
+
+    private class StopReadColors implements Task{
+        public void begin(){bessie.stopReadColors();}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public BessieController stopReadColors(){
+        tasks.add(new StopReadColors());
         return this;
     }
 
