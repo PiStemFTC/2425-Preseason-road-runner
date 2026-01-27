@@ -18,7 +18,7 @@ public class GoBildaRGBTest extends LinearOpMode {
         waitForStart();
 
 
-        RGB.setPosition(0.65);
+        RGB.setPosition(0.66);
 
 
         while (opModeIsActive()) {
