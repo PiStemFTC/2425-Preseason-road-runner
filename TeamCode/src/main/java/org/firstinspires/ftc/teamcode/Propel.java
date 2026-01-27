@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class Propel extends LinearOpMode {
 
     private IMU imu;
+    public DistanceSensor distanceSensor;
 
     //public DcMotor slide;
 
@@ -156,9 +157,9 @@ public class Propel extends LinearOpMode {
                 bessie.flicky.setPosition(0.02);
             }
 
-            if(gamepad1.y){
-                bessie.startReadColors();
-            }
+            //if(gamepad1.y){
+                //bessie.startReadColors();
+            //}
 
             telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
             telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
@@ -219,8 +220,10 @@ public class Propel extends LinearOpMode {
             }
 
 
-            if (ticks % 20 == 0)
+            if (ticks % 20 == 0) {
                 bessie.colorSensor();
+                bessie.ballColorIndicators();
+            }
             ticks++;
             bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();

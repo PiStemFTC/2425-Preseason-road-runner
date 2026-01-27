@@ -329,29 +329,29 @@ public class BessieController {
         return this;
     }
 
-    private class StartReadColors implements Task{
-        public void begin(){bessie.startReadColors();}
-        public boolean isComplete(){
-            return true;
-        }
-    }
+    //private class StartReadColors implements Task{
+        //public void begin(){bessie.startReadColors();}
+        //public boolean isComplete(){
+            //return true;
+        //}
+    //}
 
-    public BessieController startReadColors(){
-        tasks.add(new StartReadColors());
-        return this;
-    }
+    //public BessieController startReadColors(){
+        //tasks.add(new StartReadColors());
+        //return this;
+    //}
 
-    private class StopReadColors implements Task{
-        public void begin(){bessie.stopReadColors();}
-        public boolean isComplete(){
-            return true;
-        }
-    }
+    //private class StopReadColors implements Task{
+        //public void begin(){bessie.stopReadColors();}
+        //public boolean isComplete(){
+            //return true;
+        //}
+    //}
 
-    public BessieController stopReadColors(){
-        tasks.add(new StopReadColors());
-        return this;
-    }
+    //public BessieController stopReadColors(){
+        //tasks.add(new StopReadColors());
+        //return this;
+    //}
 
 
     public String toString(){

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -19,6 +20,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -38,7 +40,9 @@ public class Bessie {
     public DcMotorEx shooter;
     public Servo flicky;
     public CRServo MGR;
+    public Servo RGB;
     public ColorSensor colorSensor;
+    public DistanceSensor distanceSensor;
     private IMU imu;
     public AnalogInput analogInput;
     private double targetHeading = 0;
@@ -53,7 +57,8 @@ public class Bessie {
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
-    private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
+    public String currentColor = "unknown";
+    //private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
         INTAKE, LAUNCH
     }
@@ -90,6 +95,8 @@ public class Bessie {
         analogInput = hardwareMap.get(AnalogInput.class, "analogInput");
         colorSensor = (ColorSensor) hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
         colorSensor.enableLed(true);
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+        RGB = hardwareMap.get(Servo.class, "RGB");
         fl.setDirection(DcMotorSimple.Direction.REVERSE);
         bl.setDirection(DcMotorSimple.Direction.REVERSE);
         spinny.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -193,6 +200,27 @@ public class Bessie {
         telemetry.addData("position", -fr.getCurrentPosition());
         telemetry.addData("strafe error", strafeError);
 
+    }
+
+    public void ballColorIndicators(){
+        if(mgrMode == MGRMode.INTAKE) {
+            if ((distanceSensor.getDistance(DistanceUnit.CM) < 10)) {
+                RGB.setPosition(0.6); //blue
+            } else {
+                RGB.setPosition(0.93); //white
+            }
+        }else{
+            //launch
+            if(currentColor.equals("green")){
+                RGB.setPosition(0.5); //green
+            } else if(currentColor.equals("purple")){
+                RGB.setPosition(0.65); //purple
+            }else{
+                RGB.setPosition(0.93); //white
+            }
+        }
+
+        telemetry.addData("Distance", distanceSensor.getDistance(DistanceUnit.CM));
     }
 
     private double MGRCalcIntakePosition(int position){
@@ -353,29 +381,28 @@ public class Bessie {
     float value = hsv[2];
 
     // Add telemetry data to monitor RGB, HSV values
-        telemetry.addData("Red", red);
-        telemetry.addData("Green", green);
-        telemetry.addData("Blue", blue);
-        telemetry.addData("Hue", hue);
-        telemetry.addData("Saturation", saturation);
-        telemetry.addData("Value", value);
+//        telemetry.addData("Red", red);
+//        telemetry.addData("Green", green);
+//        telemetry.addData("Blue", blue);
+//        telemetry.addData("Hue", hue);
+//        telemetry.addData("Saturation", saturation);
+//        telemetry.addData("Value", value);
 
     // Adjusted color detection logic
     // Detect Green color (hue range 90 - 160, saturation > 0.4, value > 0.2)
         if (hue >= 90 && hue <= 160 && saturation > 0.4 && value > 0.2) {
-        telemetry.addData("Detected Color", "Green");
+        currentColor = "green";
     }
     // Detect Purple color (hue range 230 - 280, saturation > 0.4, value > 0.2)
-        else if (hue >= 230 && hue <= 280 && saturation > 0.4 && value > 0.2) {
-        telemetry.addData("Detected Color", "Purple");
+        else if (hue >= 210 && hue <= 250 && saturation > 0.4 && value > 0.9) {
+        currentColor = "purple";
     }
     // If no color is detected, mark as Unknown
         else {
-        telemetry.addData("Detected Color", "Unknown");
+        currentColor = "unknown";
     }
 
         //telemetry.addLine(axon.log());
-        telemetry.update();
 }
 
     public void RGBtoHSV(int r, int g, int b, float[] hsv) {

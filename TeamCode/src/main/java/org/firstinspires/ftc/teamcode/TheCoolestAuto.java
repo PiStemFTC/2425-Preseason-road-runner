@@ -251,7 +251,7 @@ public class TheCoolestAuto extends OpMode {
             telemetry.addData("Counter", counter);
             telemetry.addData("X Error", xError);
             telemetry.addData("Y Error", yError);
-            telemetry.addData("Colors", bessie.allColors[0]+","+bessie.allColors[1]+","+bessie.allColors[2]);
+            //telemetry.addData("Colors", bessie.allColors[0]+","+bessie.allColors[1]+","+bessie.allColors[2]);
             bessieController.update();
             bessie.update();
             telemetry.update();
