@@ -53,7 +53,7 @@ public class Bessie {
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
-    private org.firstinspires.ftc.teamcode.RTPAxon axon;
+    private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
         INTAKE, LAUNCH
     }
