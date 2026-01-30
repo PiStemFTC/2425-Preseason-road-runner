@@ -31,6 +31,7 @@ public class FarAuto extends OpMode {
         Init,
         FindTag,
         Position,
+        ActuallyPosition,
         Launch,
         Launch2,
         Intake,
@@ -99,9 +100,11 @@ public class FarAuto extends OpMode {
                 if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
                     state = State.Launch;
                 } else {
+                    double heading = Math.toDegrees(bessie.getHeading());
                     bessieController.lowPower()
-                            .forwardBy((float) -yError * .05f)
-                            .strafeBy((float) -xError * .05f)
+                            .turnTo((float) Math.toRadians(heading + (double)xError))
+                            //.forwardBy((float) -yError * .05f)
+                            //.strafeBy((float) -xError * .05f)
                             .waitWhileMoving();
                     counter++;
                 }
@@ -118,7 +121,7 @@ public class FarAuto extends OpMode {
                             .delay(1000)
                             .lift();
                 }
-                state = State.FindTag;
+                state = State.ActuallyPosition;
                 break;
             case FindTag:
                 if (!bessie.isMoving() && tag != -1) {
@@ -139,9 +142,22 @@ public class FarAuto extends OpMode {
                 break;
             case Position:
                 break;
+            case ActuallyPosition:
+                bessieController.forwardBy(5).startShooter(.8f);
+
+                if (team == Team.Blue) {
+                    bessieController.turnTo((float)Math.toRadians(22));
+                }
+                else {
+                    bessieController.turnTo((float)Math.toRadians(-22));
+                }
+                state = State.Launch;
+                break;
+
             case Launch:
                 //bessie.shooter.setPower(.2);
                     bessieController
+                            .forwardBy(-2)
                             .lift()
                             .startShooter(.825f)
                             .delay(50)
@@ -163,6 +179,7 @@ public class FarAuto extends OpMode {
                 break;
             case Launch2:
                 bessieController
+                        .forwardBy(-2)
                         .lift()
                         .startShooter(.825f)
                         .delay(50)
@@ -190,7 +207,7 @@ public class FarAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(90))
-                            .strafeBy(20)
+                            .strafeBy(24)
                             .forwardBy(16)
                             .waitWhileMoving()
                             .delay(350)
@@ -211,7 +228,7 @@ public class FarAuto extends OpMode {
                     // move to launch
                     bessieController
                             .turnTo((float) Math.toRadians(0))
-                            .strafeBy(32)
+                            .strafeBy(34)
                             //.delay(250)
                             .startShooter(.82)
                             .mgrNextLaunchPos()
@@ -226,7 +243,7 @@ public class FarAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-90))
-                            .strafeBy(-20)
+                            .strafeBy(-24)
                             .forwardBy(16)
                             .waitWhileMoving()
                             .delay(350)
@@ -247,7 +264,7 @@ public class FarAuto extends OpMode {
                     // move to launch
                     bessieController
                             .turnTo((float) Math.toRadians(0))
-                            .strafeBy(-32)
+                            .strafeBy(-34)
                             //.delay(250)
                             .startShooter(.82)
                             .mgrNextLaunchPos()

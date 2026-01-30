@@ -181,10 +181,11 @@ public class TheCoolestAuto extends OpMode {
             case Intake:
                 if (team == Team.Blue) {
                     bessieController
+                            //line up with white line
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-140.0))
-                            .strafeBy(-24)
+                            .strafeBy(-20)
                             .forwardBy(8)
                             .waitWhileMoving()
                             .delay(350)
@@ -193,6 +194,7 @@ public class TheCoolestAuto extends OpMode {
 
                     for (int i = 0; i < 2; i++) {
                         bessieController
+                                //intake all 3 balls
                                 .forwardBy(3)
                                 .waitWhileMoving()
                                 .delay(350)
@@ -201,21 +203,22 @@ public class TheCoolestAuto extends OpMode {
                     }
                     //bessieController.stopSpinny();
 
-                    // move to launch
+                    // move to launch blue
                     bessieController
                             .turnTo((float) Math.toRadians(180))
                             .startShooter(.6)
                             .mgrNextLaunchPos()
-                            .strafeBy(28)
+                            .strafeBy(34)
                             .waitWhileMoving()
                     ;
 
                 } else {
                     bessieController
+                            //line up to line red
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-220.0))
-                            .strafeBy(26)
+                            .strafeBy(20)
                             .forwardBy(8)
                             .waitWhileMoving()
                             .delay(350)
@@ -224,6 +227,7 @@ public class TheCoolestAuto extends OpMode {
 
                     for (int i = 0; i < 2; i++) {
                         bessieController
+                                //intake all 3 balls
                                 .forwardBy(3)
                                 .waitWhileMoving()
                                 .delay(350)
@@ -237,7 +241,7 @@ public class TheCoolestAuto extends OpMode {
                             .turnTo((float) Math.toRadians(-180))
                             .startShooter(.6)
                             .mgrNextLaunchPos()
-                            .strafeBy(-28)
+                            .strafeBy(-34)
                             .waitWhileMoving()
                     ;
 

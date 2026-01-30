@@ -205,7 +205,7 @@ public class Bessie {
     public void ballColorIndicators(){
         if(mgrMode == MGRMode.INTAKE) {
             if ((distanceSensor.getDistance(DistanceUnit.CM) < 10)) {
-                RGB.setPosition(0.6); //blue
+                RGB.setPosition(0.3); //blue
             } else {
                 RGB.setPosition(0.93); //white
             }
@@ -214,7 +214,7 @@ public class Bessie {
             if(currentColor.equals("green")){
                 RGB.setPosition(0.5); //green
             } else if(currentColor.equals("purple")){
-                RGB.setPosition(0.65); //purple
+                RGB.setPosition(0.64); //purple
             }else{
                 RGB.setPosition(0.93); //white
             }
