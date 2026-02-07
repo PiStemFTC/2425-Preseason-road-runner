@@ -66,6 +66,9 @@ public class Bessie {
     public double tx, ty, ta, bearingToTarget;
     public boolean limelightValid = false;
     public String currentColor = "unknown";
+    public PredominantColorProcessor chamberControlColor, chamberBarrelColor, chamberExpansionColor;
+    public PredominantColorProcessor.Result resultControl, resultBarrel, resultExpansion;
+
     //private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
         INTAKE, LAUNCH
@@ -127,21 +130,63 @@ public class Bessie {
     }
 
     public void webcam(HardwareMap hardwareMap) {
-        PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
+        chamberControlColor = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asImageCoordinates(1, 210, 180, 480)) //left ball
                 .setSwatches(
-                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
-                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+//                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+//                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
                         PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.ORANGE,
                         PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
+                        PredominantColorProcessor.Swatch.GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.CYAN,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.PURPLE,
+                        PredominantColorProcessor.Swatch.MAGENTA,
+                        PredominantColorProcessor.Swatch.BLACK)
+                .build();
+        chamberBarrelColor = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asImageCoordinates(500, 200, 640,480))//right ball
+                .setSwatches(
+//                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+//                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.ORANGE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.CYAN,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.PURPLE,
+                        PredominantColorProcessor.Swatch.MAGENTA,
+                        PredominantColorProcessor.Swatch.BLACK)
+                .build();
+        chamberExpansionColor = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asImageCoordinates(250, 130, 320, 200))//launch ball
+                .setSwatches(
+//                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+//                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.ORANGE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.CYAN,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.PURPLE,
+                        PredominantColorProcessor.Swatch.MAGENTA,
+                        PredominantColorProcessor.Swatch.BLACK)
                 .build();
 
-        VisionPortal myVisionPortal;
+    VisionPortal myVisionPortal;
         myVisionPortal = new VisionPortal.Builder()
-                .addProcessor(colorSensor)
+                .addProcessor(chamberBarrelColor)
+                .addProcessor(chamberControlColor)
+                .addProcessor(chamberExpansionColor)
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam"))
                 .setCameraResolution(new Size(640, 480))
                 .setStreamFormat(VisionPortal.StreamFormat.YUY2)
@@ -149,7 +194,6 @@ public class Bessie {
                 .setAutoStopLiveView(true)
                 .build();
     }
-
 
     public void updateMGR() {
         MGR.setPower(mgrController.calculate(
@@ -273,8 +317,8 @@ public class Bessie {
         if(MGRPositionIndex > 2){
            MGRPositionIndex = MGRPositionIndex%3;
         }
-        //MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
-        MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
+        MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
+        //MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
         mgrController.setSetpoint(MGRTargetVoltage);
 
         //axon.setTargetRotation(MGRTargetVoltage);

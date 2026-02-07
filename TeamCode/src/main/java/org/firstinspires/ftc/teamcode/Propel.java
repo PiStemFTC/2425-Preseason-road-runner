@@ -58,6 +58,8 @@ public class Propel extends LinearOpMode {
     boolean dpadDownAlreadyPressed = false;
     double distance;
     int velocity = -1;
+    final double llfov = 54.5;
+    final double llwidth = 1280.0;
 
     private double circleDiff(double a1, double a2) {
         if (a2 > a1 && a2 > 0 && a1 < 0 && Math.abs(a2 - a1) > Math.PI)
@@ -84,7 +86,7 @@ public class Propel extends LinearOpMode {
         bessie.initializeHardware(hardwareMap);
         bessie.webcam(hardwareMap);
 
-        bessie.limelight.pipelineSwitch(0);
+        bessie.limelight.pipelineSwitch(1);
         bessie.limelight.start();
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -196,9 +198,9 @@ public class Propel extends LinearOpMode {
 
             double[] powers = {0, 0, 0, 0};
             for (int i = 0; i < 4; ++i) {
-                powers[i] = forwardDirection[i] * -(gamepad1.left_stick_y * .6);
-                powers[i] += turnDirection[i] * -(gamepad1.right_stick_x * .6);
-                powers[i] += strafeDirection[i] * -(gamepad1.left_stick_x * .6);
+                powers[i] = forwardDirection[i] * -(gamepad1.left_stick_y * .75);
+                powers[i] += turnDirection[i] * -(gamepad1.right_stick_x * .75);
+                powers[i] += strafeDirection[i] * -(gamepad1.left_stick_x * .75);
                 powers[i] += turnDirection[i] * error;
             }
 
@@ -271,7 +273,10 @@ public class Propel extends LinearOpMode {
 
             double tx = result.getTx();
             double ty = result.getTy();
-            bearingToTarget = Math.atan2(tx, ty) * 180.0 / Math.PI;
+            //final double fov2 = llfov/2.0;
+            //final double llwidth2 = llwidth/2.0;
+            //bearingToTarget = ((llwidth2-tx)/llwidth2)*fov2;
+            bearingToTarget = tx;
 
             telemetry.addData("tx", result.getTx());
             telemetry.addData("txnc", result.getTxNC());
