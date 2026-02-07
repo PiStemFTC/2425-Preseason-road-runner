@@ -26,6 +26,7 @@ public class TheCoolestAuto extends OpMode {
     private double yError;
     private int tagID;
     private boolean park = false;
+    private boolean useCamera = false;
     public enum State {
         Init,
         FindTag,
@@ -72,32 +73,35 @@ public class TheCoolestAuto extends OpMode {
         int tag = -1;
         int targetTx = -7;
         int targetTy = 16;
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-        limelight.updateRobotOrientation(orientation.getYaw());
-        LLResult llResult = limelight.getLatestResult();
-        if (llResult != null && llResult.isValid()) {
-            List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                tag = fr.getFiducialId();
-            }
-            Pose3D botPose = llResult.getBotpose();
-            telemetry.addData("Tx:", llResult.getTx());
-            telemetry.addData("Ty:", llResult.getTy());
-            //telemetry.addData("Target Area:", llResult.getTa());
-            //telemetry.addData("Botpose:", botPose.toString());
+        if (useCamera) {
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+            limelight.updateRobotOrientation(orientation.getYaw());
+            LLResult llResult = limelight.getLatestResult();
+            if (llResult != null && llResult.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
+                for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    tag = fr.getFiducialId();
+                }
+                Pose3D botPose = llResult.getBotpose();
+                telemetry.addData("Tx:", llResult.getTx());
+                telemetry.addData("Ty:", llResult.getTy());
+                //telemetry.addData("Target Area:", llResult.getTa());
+                //telemetry.addData("Botpose:", botPose.toString());
 
-            if (state == State.Position && !bessie.isMoving()) {
-                xError = llResult.getTx() - targetTx;
-                yError = llResult.getTy() - targetTy;
-                if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
-                    state = State.Launch;
-                } else {
-                    bessieController.lowPower()
-                            .forwardBy((float) -yError * .05f)
-                            .strafeBy((float) -xError * .05f)
-                            .waitWhileMoving();
-                    counter++;
+                if (state == State.Position && !bessie.isMoving()) {
+                    xError = llResult.getTx() - targetTx;
+                    yError = llResult.getTy() - targetTy;
+                    if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
+                        useCamera = false;
+                        state = State.Launch;
+                    } else {
+                        bessieController.lowPower()
+                                .forwardBy((float) -yError * .05f)
+                                .strafeBy((float) -xError * .05f)
+                                .waitWhileMoving();
+                        counter++;
+                    }
                 }
             }
         }
@@ -120,6 +124,7 @@ public class TheCoolestAuto extends OpMode {
                 state = State.FindTag;
                 break;
             case FindTag:
+                useCamera = true;
                 if (tag != -1) {
                     tagID = tag;
                     if (team == Team.Blue) {
@@ -195,7 +200,7 @@ public class TheCoolestAuto extends OpMode {
                     for (int i = 0; i < 2; i++) {
                         bessieController
                                 //intake all 3 balls
-                                .forwardBy(3)
+                                .forwardBy(2)
                                 .waitWhileMoving()
                                 .delay(350)
                                 .mgrNextIntakePos()
@@ -205,7 +210,7 @@ public class TheCoolestAuto extends OpMode {
 
                     // move to launch blue
                     bessieController
-                            .turnTo((float) Math.toRadians(180))
+                            .turnTo((float) Math.toRadians(175))
                             .startShooter(.6)
                             .mgrNextLaunchPos()
                             .strafeBy(34)
@@ -238,7 +243,7 @@ public class TheCoolestAuto extends OpMode {
 
                     // move to launch
                     bessieController
-                            .turnTo((float) Math.toRadians(-180))
+                            .turnTo((float) Math.toRadians(-175))
                             .startShooter(.6)
                             .mgrNextLaunchPos()
                             .strafeBy(-34)

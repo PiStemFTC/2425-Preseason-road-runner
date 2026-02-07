@@ -21,6 +21,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 @TeleOp(name="Propel", group="TeleOp")
 public class Propel extends LinearOpMode {
@@ -45,9 +49,11 @@ public class Propel extends LinearOpMode {
     long now;
     double targetHeading = 0;
     boolean turning = false;
+    boolean tagVisible = false;
     double heading;
     double lastHeading;
     double changeInHeading;
+    double bearingToTarget = 0.0;
     boolean dpadUpAlreadyPressed = false;
     boolean dpadDownAlreadyPressed = false;
     double distance;
@@ -67,6 +73,7 @@ public class Propel extends LinearOpMode {
         long ticks = 0;
         boolean launchEnabled = false;
 
+
         int slidePos = 0;
         if (velocity == -1){
           velocity = 1000;
@@ -75,6 +82,7 @@ public class Propel extends LinearOpMode {
 
         Bessie bessie = new Bessie(telemetry);
         bessie.initializeHardware(hardwareMap);
+        bessie.webcam(hardwareMap);
 
         bessie.limelight.pipelineSwitch(0);
         bessie.limelight.start();
@@ -95,7 +103,7 @@ public class Propel extends LinearOpMode {
         boolean grab = true;
         while (opModeIsActive()) {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-            bessie.limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
+            bessie.limelight.updateRobotOrientation(orientation.getYaw());
 
             if (gamepad2.left_bumper) {
                 bessie.spinny.setPower(-1);
@@ -113,7 +121,7 @@ public class Propel extends LinearOpMode {
 
             double encoderTicksPerRev = 28;
             double ticksPerSecond = bessie.shooter.getVelocity();
-            double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 60.0;
+            double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 59.0; //60
             telemetry.addData("Shooter RPM", shooterRPM);
 
            // if (gamepad2.a) {
@@ -146,7 +154,7 @@ public class Propel extends LinearOpMode {
             }
 
             if (launchEnabled) {
-                bessie.shooter.setVelocity(velocity);
+                bessie.shooter.setVelocity(velocity * .96);
             } else {
                 bessie.shooter.setVelocity(0);
             }
@@ -157,13 +165,15 @@ public class Propel extends LinearOpMode {
                 bessie.flicky.setPosition(0.02);
             }
 
+
+
             //if(gamepad1.y){
                 //bessie.startReadColors();
             //}
 
-            telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
-            telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
-            telemetry.addData(String.valueOf(velocity), "Velocity");
+//            telemetry.addData(String.valueOf(bessie.analogInput.getMaxVoltage()), "max voltage");
+//            telemetry.addData(String.valueOf(bessie.analogInput.getVoltage()), "voltage");
+//            telemetry.addData(String.valueOf(velocity), "Velocity");
 
             now = System.currentTimeMillis();
             //dT=Math.subtractExact(lastTime,now);
@@ -171,26 +181,19 @@ public class Propel extends LinearOpMode {
             lastTime = now;
 
             // TODO XXX Use the IMU for the heading
+            if(gamepad1.right_trigger > .2 && tagVisible){
+                targetHeading += -(Math.toRadians(bearingToTarget) / 10.0);
+            }
             // heading= (drive.pose.heading.toDouble());
             //YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             heading = orientation.getYaw(AngleUnit.RADIANS);
+            double headingDeg = orientation.getYaw(AngleUnit.DEGREES);
             changeInHeading = circleDiff(lastHeading, heading);
             lastHeading = heading;
 
             double error = circleDiff(heading,targetHeading);
-            //double error = targetHeading - heading;
-            /*
-            double altError = 0;
-            if (heading < targetHeading) {
-                altError = -((Math.PI - targetHeading) + (Math.PI + heading));
-            } else {
-                altError = (Math.PI - heading) + (Math.PI + targetHeading);
-            }
 
-            if (Math.abs(altError) < Math.abs(error)) {
-                error = altError;
-            }
-             */
+
             double[] powers = {0, 0, 0, 0};
             for (int i = 0; i < 4; ++i) {
                 powers[i] = forwardDirection[i] * -(gamepad1.left_stick_y * .6);
@@ -222,22 +225,26 @@ public class Propel extends LinearOpMode {
 
             if (ticks % 20 == 0) {
                 bessie.colorSensor();
-                bessie.ballColorIndicators();
+                bessie.ballColorIndicators(tagVisible);
             }
             ticks++;
             bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();
-
+            telemetry.addLine("Preview on/off: 3 dots, Camera Stream\n");
             telemetry.addData("Color", bessie.currentColor);
-            telemetry.addData("heading", (orientation.getYaw(AngleUnit.RADIANS)));
+
+            telemetry.addData("bearing", bearingToTarget);
+            telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
+
+            telemetry.addData("heading", heading);
             telemetry.addData("error", error);
             //telemetry.addData("altError", altError);
-            telemetry.addData("targetHeading", targetHeading);
             telemetry.addData("dT", dT);
             telemetry.addData("changeInHeading", changeInHeading);
-            if (dT > 0) {
-                telemetry.addData("radians/ms", changeInHeading / dT);
-            }
+//            if (dT > 0) {
+//                telemetry.addData("radians/ms", changeInHeading / dT);
+//            }
+            telemetry.addData("headingDeg", headingDeg);
             monkeyBuisness(bessie);
             telemetry.update();
         }
@@ -255,11 +262,17 @@ public class Propel extends LinearOpMode {
         return 8.249527 * distance + 1068.729;
     }
 
+
     private void monkeyBuisness(Bessie bessie) {
         LLResult result = bessie.limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            tagVisible = true;
+            Pose3D botpose = result.getBotpose_MT2();
 
-        if (result.isValid()) {
-            Pose3D botpose = result.getBotpose();
+            double tx = result.getTx();
+            double ty = result.getTy();
+            bearingToTarget = Math.atan2(tx, ty) * 180.0 / Math.PI;
+
             telemetry.addData("tx", result.getTx());
             telemetry.addData("txnc", result.getTxNC());
             telemetry.addData("ty", result.getTy());
@@ -270,6 +283,9 @@ public class Propel extends LinearOpMode {
             telemetry.addData("Distance", distance);
             telemetry.addData("Botpose", botpose.toString());
 
+        }else{
+            tagVisible = false;
+            bearingToTarget = 0.0;
         }
     }
 }

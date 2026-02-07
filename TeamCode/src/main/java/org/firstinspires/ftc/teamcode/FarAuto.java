@@ -102,7 +102,7 @@ public class FarAuto extends OpMode {
                 } else {
                     double heading = Math.toDegrees(bessie.getHeading());
                     bessieController.lowPower()
-                            .turnTo((float) Math.toRadians(heading + (double)xError))
+                            .turnTo((float) Math.toRadians(heading + (double)xError * .15))
                             //.forwardBy((float) -yError * .05f)
                             //.strafeBy((float) -xError * .05f)
                             .waitWhileMoving();
@@ -157,7 +157,7 @@ public class FarAuto extends OpMode {
             case Launch:
                 //bessie.shooter.setPower(.2);
                     bessieController
-                            .forwardBy(-2)
+                            .forwardBy(-1)
                             .lift()
                             .startShooter(.825f)
                             .delay(50)
@@ -179,7 +179,7 @@ public class FarAuto extends OpMode {
                 break;
             case Launch2:
                 bessieController
-                        .forwardBy(-2)
+                        .forwardBy(-1)
                         .lift()
                         .startShooter(.825f)
                         .delay(50)
@@ -232,8 +232,8 @@ public class FarAuto extends OpMode {
                             //.delay(250)
                             .startShooter(.82)
                             .mgrNextLaunchPos()
-                            .forwardBy(-12)
-                            .turnTo((float)Math.toRadians(18))
+                            .forwardBy(-9)
+                            .turnTo((float)Math.toRadians(20))
                             .waitWhileMoving()
                     ;
                 } else {
@@ -243,7 +243,7 @@ public class FarAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-90))
-                            .strafeBy(-24)
+                            .strafeBy(-20)
                             .forwardBy(16)
                             .waitWhileMoving()
                             .delay(350)
@@ -268,7 +268,7 @@ public class FarAuto extends OpMode {
                             //.delay(250)
                             .startShooter(.82)
                             .mgrNextLaunchPos()
-                            .forwardBy(-12)
+                            .forwardBy(-9)
                             .turnTo((float)Math.toRadians(-18))
                             .waitWhileMoving()
                     ;

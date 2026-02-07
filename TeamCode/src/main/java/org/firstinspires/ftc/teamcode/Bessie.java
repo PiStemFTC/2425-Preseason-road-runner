@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 //package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import android.util.Size;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -19,10 +21,14 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.util.List;
 
@@ -57,6 +63,8 @@ public class Bessie {
     public float fwdPower = .6f;
     public double MGRTargetVoltage = 0;
     public int MGRPositionIndex = 0;
+    public double tx, ty, ta, bearingToTarget;
+    public boolean limelightValid = false;
     public String currentColor = "unknown";
     //private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
@@ -118,6 +126,31 @@ public class Bessie {
 
     }
 
+    public void webcam(HardwareMap hardwareMap) {
+        PredominantColorProcessor colorSensor = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.1, 0.1, -0.1))
+                .setSwatches(
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.BLACK,
+                        PredominantColorProcessor.Swatch.WHITE)
+                .build();
+
+        VisionPortal myVisionPortal;
+        myVisionPortal = new VisionPortal.Builder()
+                .addProcessor(colorSensor)
+                .setCamera(hardwareMap.get(WebcamName.class, "Webcam"))
+                .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
+                //.enableCameraMonitoring(true)
+                .setAutoStopLiveView(true)
+                .build();
+    }
+
+
     public void updateMGR() {
         MGR.setPower(mgrController.calculate(
                 analogInput.getVoltage()));
@@ -154,6 +187,7 @@ public class Bessie {
     }
 
     public void update(){
+        updateLimelight();
         double hdgError = 0;
         float fwdError = 0;
         float strafeError = 0;
@@ -202,7 +236,7 @@ public class Bessie {
 
     }
 
-    public void ballColorIndicators(){
+    public void ballColorIndicators(boolean tagVisible){
         if(mgrMode == MGRMode.INTAKE) {
             if ((distanceSensor.getDistance(DistanceUnit.CM) < 10)) {
                 RGB.setPosition(0.3); //blue
@@ -211,12 +245,16 @@ public class Bessie {
             }
         }else{
             //launch
-            if(currentColor.equals("green")){
-                RGB.setPosition(0.5); //green
-            } else if(currentColor.equals("purple")){
-                RGB.setPosition(0.64); //purple
+            if(tagVisible) {
+                if (currentColor.equals("green")) {
+                    RGB.setPosition(0.5); //green
+                } else if (currentColor.equals("purple")) {
+                    RGB.setPosition(0.64); //purple
+                } else {
+                    RGB.setPosition(0.93); //white
+                }
             }else{
-                RGB.setPosition(0.93); //white
+                RGB.setPosition(0.0);
             }
         }
 
@@ -235,7 +273,8 @@ public class Bessie {
         if(MGRPositionIndex > 2){
            MGRPositionIndex = MGRPositionIndex%3;
         }
-        MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
+        //MGRTargetVoltage = MGRCalcIntakePosition(MGRPositionIndex);
+        MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
         mgrController.setSetpoint(MGRTargetVoltage);
 
         //axon.setTargetRotation(MGRTargetVoltage);
@@ -440,6 +479,22 @@ public class Bessie {
 
     public void stop(){
         forward(0);
+    }
+
+    private void updateLimelight() {
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        limelight.updateRobotOrientation(orientation.getYaw());
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            limelightValid = true;
+            Pose3D botpose = result.getBotpose_MT2();
+            ta = result.getTa();
+            tx = result.getTx();
+            ty = result.getTy();
+            bearingToTarget = Math.atan2(tx, ty) * 180.0 / Math.PI;
+        }else{
+            limelightValid = false;
+        }
     }
 
     public void moveToAprilTag(Telemetry telemetry, Hydra hydra){
