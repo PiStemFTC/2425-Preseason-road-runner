@@ -97,21 +97,25 @@ public class FarAuto extends OpMode {
             if (state == State.Position && !bessie.isMoving()) {
                 xError = llResult.getTx() - targetTx;
                 yError = llResult.getTy() - targetTy;
-                if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
+                double tx = llResult.getTx();
+                //if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
+                if (Math.abs(tx) < 0.05){
                     state = State.Launch;
                 } else {
                     double heading = Math.toDegrees(bessie.getHeading());
-                    bessieController.lowPower()
-                            .turnTo((float) Math.toRadians(heading + (double)xError * .15))
-                            //.forwardBy((float) -yError * .05f)
-                            //.strafeBy((float) -xError * .05f)
-                            .waitWhileMoving();
+//                    bessieController.lowPower()
+//                            .turnTo((float) Math.toRadians(heading + (double)xError * .15))
+//                            //.forwardBy((float) -yError * .05f)
+//                            //.strafeBy((float) -xError * .05f)
+//                            .waitWhileMoving();
+                    bessie.turnBy(tx);
                     counter++;
                 }
             }
         }
         switch (state) {
             case Init:
+                bessieController.lowPower();
                 if (team == Team.Blue) {
                     bessieController
                             .delay(1000)
@@ -207,22 +211,22 @@ public class FarAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(90))
-                            .strafeBy(24)
-                            .forwardBy(16)
-                            .waitWhileMoving()
-                            .delay(350)
-                            .mgrNextIntakePos()
-                            .delay(350);
+                            .strafeBy(22)
+                            .forwardBy(20)
+                            .waitWhileMoving();
+//                            .delay(350)
+//                            .mgrNextIntakePos()
+//                            .delay(350);
 
-                    for (int i = 0; i < 2; i++) {
-                        //intake all 3 balls
-                        bessieController
-                                .forwardBy(3)
-                                .waitWhileMoving()
-                                .delay(350)
-                                .mgrNextIntakePos()
-                                .delay(350);
-                    }
+//                    for (int i = 0; i < 2; i++) {
+//                        //intake all 3 balls
+//                        bessieController
+//                                .forwardBy(3)
+//                                .waitWhileMoving()
+//                                .delay(350)
+//                                .mgrNextIntakePos()
+//                                .delay(350);
+//                    }
                     //bessieController.stopSpinny();
 
                     // move to launch
@@ -244,21 +248,21 @@ public class FarAuto extends OpMode {
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-90))
                             .strafeBy(-20)
-                            .forwardBy(16)
-                            .waitWhileMoving()
-                            .delay(350)
-                            .mgrNextIntakePos()
-                            .delay(350);
+                            .forwardBy(20)
+                            .waitWhileMoving();
+//                            .delay(350)
+//                            .mgrNextIntakePos()
+//                            .delay(350);
 
-                    for (int i = 0; i < 2; i++) {
-                        //intake all 3 balls
-                        bessieController
-                                .forwardBy(3)
-                                .waitWhileMoving()
-                                .delay(350)
-                                .mgrNextIntakePos()
-                                .delay(350);
-                    }
+//                    for (int i = 0; i < 2; i++) {
+//                        //intake all 3 balls
+//                        bessieController
+//                                .forwardBy(3)
+//                                .waitWhileMoving()
+//                                .delay(350)
+//                                .mgrNextIntakePos()
+//                                .delay(350);
+//                    }
                     //bessieController.stopSpinny();
 
                     // move to launch

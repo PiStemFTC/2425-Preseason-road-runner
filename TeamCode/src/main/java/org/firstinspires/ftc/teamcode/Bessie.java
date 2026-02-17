@@ -68,6 +68,8 @@ public class Bessie {
     public String currentColor = "unknown";
     public PredominantColorProcessor chamberControlColor, chamberBarrelColor, chamberExpansionColor;
     public PredominantColorProcessor.Result resultControl, resultBarrel, resultExpansion;
+    public String motifOrder;
+    public String[] chambers = new String[3];
 
     //private org.firstinspires.ftc.teamcode.subsystems.RTPAxon axon;
     public enum MGRMode {
@@ -131,7 +133,7 @@ public class Bessie {
 
     public void webcam(HardwareMap hardwareMap) {
         chamberControlColor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asImageCoordinates(1, 210, 180, 480)) //left ball
+                .setRoi(ImageRegion.asImageCoordinates(1, 215, 180, 480)) //left ball
                 .setSwatches(
 //                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
 //                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
@@ -165,7 +167,7 @@ public class Bessie {
                         PredominantColorProcessor.Swatch.BLACK)
                 .build();
         chamberExpansionColor = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asImageCoordinates(250, 130, 320, 200))//launch ball
+                .setRoi(ImageRegion.asImageCoordinates(250, 130, 320, 250))//launch ball
                 .setSwatches(
 //                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
 //                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
@@ -193,6 +195,166 @@ public class Bessie {
                 //.enableCameraMonitoring(true)
                 .setAutoStopLiveView(true)
                 .build();
+    }
+
+    public String[] getChambers()
+    {
+        //String[] chambers = new String[3];          //0 = Barrel, 1 = Control, 2 = Expansion
+
+        String resultBarrel = chamberBarrelColor.getAnalysis().closestSwatch.toString();
+        String resultControl = chamberControlColor.getAnalysis().closestSwatch.toString();
+        String resultExpansion = chamberExpansionColor.getAnalysis().closestSwatch.toString();
+
+        String returnBarrel = "?";
+        String returnControl = "?";
+        String returnExpansion = "?";
+
+        boolean testingSwatchOn = false; // turns on swatch value to return values
+
+        if(resultBarrel.equalsIgnoreCase("GREEN") || resultBarrel.equalsIgnoreCase("ARTIFACT_GREEN"))
+        {
+            returnBarrel = "GREEN";
+        }
+        else if(resultBarrel.equalsIgnoreCase("PURPLE") || resultBarrel.equalsIgnoreCase("ARTIFACT_PURPLE")
+                || resultBarrel.equalsIgnoreCase("MAGENTA") || resultBarrel.equalsIgnoreCase("BLUE"))
+        {
+            returnBarrel = "PURPLE";
+        }
+        else
+        {
+            returnBarrel = "EMPTY";
+        }
+
+        if(resultControl.equalsIgnoreCase("GREEN") || resultControl.equalsIgnoreCase("ARTIFACT_GREEN"))
+        {
+            returnControl = "GREEN";
+        }
+        else if(resultControl.equalsIgnoreCase("PURPLE") || resultControl.equalsIgnoreCase("ARTIFACT_PURPLE")
+                || resultControl.equalsIgnoreCase("MAGENTA") || resultControl.equalsIgnoreCase("BLUE"))
+        {
+            returnControl = "PURPLE";
+        }
+        else
+        {
+            returnControl = "EMPTY";
+        }
+
+        if(resultExpansion.equalsIgnoreCase("GREEN") || resultExpansion.equalsIgnoreCase("ARTIFACT_GREEN"))
+        {
+            returnExpansion = "GREEN";
+        }
+        else if(resultExpansion.equalsIgnoreCase("PURPLE") || resultExpansion.equalsIgnoreCase("ARTIFACT_PURPLE")
+                || resultExpansion.equalsIgnoreCase("MAGENTA") || resultExpansion.equalsIgnoreCase("BLUE"))
+        {
+            returnExpansion = "PURPLE";
+        }
+        else
+        {
+            returnExpansion = "EMPTY";
+        }
+
+        if(testingSwatchOn)
+        {
+            returnBarrel += " - " + resultBarrel;
+            returnControl += " - " + resultControl;
+            returnExpansion += " - " + resultExpansion;
+        }
+        chambers[0]  = returnExpansion;
+        chambers[1]  = returnControl;
+        chambers[2]  = returnBarrel;
+
+        return chambers;
+    }
+
+    public double[] axonToOrder(double axonTargetCurrent)
+    {
+        double[] axonReturn = new double[2];
+        double axonTarget = axonTargetCurrent;
+        double axonDirection = 0;//1.0 = cw, -1.0 = ccw
+        chambers = getChambers();
+        String chamberOrder = chambers[0].substring(0, 1) + chambers[1].substring(0, 1) + chambers[2].substring(0, 1);
+
+        if(chamberOrder.toLowerCase().contains("e"))
+        {
+            // If one chamber appears empty, assume the empty is the missing color
+            if(chamberOrder.equalsIgnoreCase("epp") || chamberOrder.equalsIgnoreCase("gep") || chamberOrder.equalsIgnoreCase("gpe"))
+            {
+                chamberOrder = "gpp";
+            }
+            else if(chamberOrder.equalsIgnoreCase("egp") || chamberOrder.equalsIgnoreCase("pep") || chamberOrder.equalsIgnoreCase("pge"))
+            {
+                chamberOrder = "pgp";
+            }
+            else if(chamberOrder.equalsIgnoreCase("epg") || chamberOrder.equalsIgnoreCase("peg") || chamberOrder.equalsIgnoreCase("ppe"))
+            {
+                chamberOrder = "ppg";
+            }
+
+        }
+
+        if(chamberOrder.toLowerCase().contains("e"))
+        {
+            // More than one chamber registered as empty
+            axonTarget = ((axonTarget + 360) + 240) % 360;
+            axonDirection = -2.0;
+        }
+        else if(motifOrder.equalsIgnoreCase("gpp"))
+        {
+            if(chamberOrder.equalsIgnoreCase("gpp"))
+            {
+                //nothing
+            }
+            else if(chamberOrder.equalsIgnoreCase("pgp"))
+            {
+                axonTarget = ((axonTarget + 360) + 120) % 360;
+                axonDirection = 1.0;
+            }
+            else if(chamberOrder.equalsIgnoreCase("ppg"))
+            {
+                axonTarget = ((axonTarget + 360) - 120) % 360;
+                axonDirection = -1.0;
+            }
+        }
+        else if(motifOrder.equalsIgnoreCase("pgp"))
+        {
+            if(chamberOrder.equalsIgnoreCase("gpp"))
+            {
+                axonTarget = ((axonTarget + 360) - 120) % 360;
+                axonDirection = -1.0;
+            }
+            else if(chamberOrder.equalsIgnoreCase("pgp"))
+            {
+                //nothing
+            }
+            else if(chamberOrder.equalsIgnoreCase("ppg"))
+            {
+                axonTarget = ((axonTarget + 360) + 120) % 360;
+                axonDirection = 1.0;
+            }
+        }
+        else if(motifOrder.equalsIgnoreCase("ppg"))
+        {
+            if(chamberOrder.equalsIgnoreCase("gpp"))
+            {
+                axonTarget = ((axonTarget + 360) + 120) % 360;
+                axonDirection = 1.0;
+            }
+            else if(chamberOrder.equalsIgnoreCase("pgp"))
+            {
+                axonTarget = ((axonTarget + 360) - 120) % 360;
+                axonDirection = -1.0;
+            }
+            else if(chamberOrder.equalsIgnoreCase("ppg"))
+            {
+                //nothing
+            }
+            telemetry.addData(chamberOrder, "Chamber Order:");
+        }
+
+        axonReturn[0] = axonTarget;
+        axonReturn[1] = axonDirection;
+
+        return axonReturn;
     }
 
     public void updateMGR() {
@@ -330,6 +492,13 @@ public class Bessie {
         return positions[position];
     }
 
+    public void MGRSetLaunchPosition(int index) {
+        mgrMode = MGRMode.LAUNCH;
+        MGRPositionIndex = index;
+        MGRTargetVoltage = MGRCalcLaunchPosition(MGRPositionIndex);
+        mgrController.setSetpoint(MGRTargetVoltage);
+    }
+
     public void MGRNextLaunchPosition(){
         mgrMode = MGRMode.LAUNCH;
         MGRPositionIndex++;
@@ -414,6 +583,9 @@ public class Bessie {
     public void turnTo(double hdg){
         turning = true;
         targetHeading = hdg;
+    }
+    public void turnBy(double r){
+        targetHeading+=r;
     }
 
     public void forwardBy(float inches){

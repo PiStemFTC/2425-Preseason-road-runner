@@ -107,8 +107,23 @@ public class BessieController {
         return this;
     }
 
+
+
+    private class LowerPower implements Task{
+        public void begin() {bessie.fwdPower = 0.2f;}
+        public boolean isComplete(){
+            return true;
+        }
+    }
+
+    public BessieController lowerPower(){
+        tasks.add(new LowerPower());
+        return this;
+    }
+
+
     private class HighPower implements Task{
-        public void begin() {bessie.fwdPower = 0.6f;}
+        public void begin() {bessie.fwdPower = 0.85f;}
         public boolean isComplete(){
             return true;
         }
@@ -270,6 +285,25 @@ public class BessieController {
 
     public BessieController mgrNextLaunchPos(){
         tasks.add(new MGRNextLaunchPosTask());
+        return this;
+    }
+
+    private class MGRSetLaunchPosTask implements Task{
+        int index = 0;
+        public MGRSetLaunchPosTask(int index) { this.index = index; }
+
+        public void begin(){
+            bessie.MGRSetLaunchPosition(index);
+        }
+
+        @Override
+        public boolean isComplete() {
+            return true;
+        }
+    }
+
+    public BessieController mgrSetLaunchPos(int index){
+        tasks.add(new MGRSetLaunchPosTask(index));
         return this;
     }
 

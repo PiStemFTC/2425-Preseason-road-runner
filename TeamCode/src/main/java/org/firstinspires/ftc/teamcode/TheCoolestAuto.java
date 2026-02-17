@@ -41,6 +41,32 @@ public class TheCoolestAuto extends OpMode {
     }
     private Team team = Team.Blue;
 
+    class Motif {
+        String order = "ppg";
+        int motifIndex = 0;
+
+        String[] chambers = {"", "", ""};
+
+        int selectNext() {
+            if (motifIndex > 0)
+                motifIndex = 0;
+            char color = order.charAt(motifIndex);
+            for(int i = 0; i < 3; i++){
+                if(color == 'p' && chambers[i].equals("PURPLE")){
+                    chambers[i] = "";
+                    motifIndex++;
+                    return i;
+                } else if(color == 'g' && chambers[i].equals("GREEN")){
+                    chambers[i] = "";
+                    motifIndex++;
+                    return i;
+                }
+            }
+
+            return 0;
+        }
+    }
+    Motif motif = new Motif();
 
     @Override
     public void init() {
@@ -49,6 +75,7 @@ public class TheCoolestAuto extends OpMode {
         bessieController = new BessieController(bessie);
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         imu = hardwareMap.get(IMU.class, "imu");
+        bessie.webcam(hardwareMap);
         limelight.pipelineSwitch(0); // obelisk aprilTags
         //move start here if limelight has delay
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
@@ -82,7 +109,8 @@ public class TheCoolestAuto extends OpMode {
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
                     tag = fr.getFiducialId();
-                }
+
+            }
                 Pose3D botPose = llResult.getBotpose();
                 telemetry.addData("Tx:", llResult.getTx());
                 telemetry.addData("Ty:", llResult.getTy());
@@ -92,14 +120,17 @@ public class TheCoolestAuto extends OpMode {
                 if (state == State.Position && !bessie.isMoving()) {
                     xError = llResult.getTx() - targetTx;
                     yError = llResult.getTy() - targetTy;
-                    if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
+                    //if (Math.abs(xError * .05) < 1.0 && Math.abs(yError * .05) < 1.0) {
+                    if (llResult.getTx() < 0.05){
+
                         useCamera = false;
                         state = State.Launch;
                     } else {
-                        bessieController.lowPower()
-                                .forwardBy((float) -yError * .05f)
-                                .strafeBy((float) -xError * .05f)
-                                .waitWhileMoving();
+//                        bessieController.lowPower()
+//                                .forwardBy((float) -yError * .05f)
+//                                .strafeBy((float) -xError * .05f)
+//                                .waitWhileMoving();
+                        bessie.turnBy(llResult.getTx());
                         counter++;
                     }
                 }
@@ -108,6 +139,7 @@ public class TheCoolestAuto extends OpMode {
         switch (state) {
             case Init:
                 //bessieController.lift().delay(500).startReadColors();
+                motif.chambers = bessie.getChambers();
                 if (team == Team.Blue) {
                     bessieController
                             .delay(250)
@@ -127,13 +159,27 @@ public class TheCoolestAuto extends OpMode {
                 useCamera = true;
                 if (tag != -1) {
                     tagID = tag;
+
+                    if(tag == 21) {
+                        motif.order = "gpp";
+                    } else if(tag == 22) {
+                        motif.order = "pgp";
+                    } else if(tag == 23) {
+                        motif.order = "ppg";
+                    }
+
+                    motif.chambers = bessie.getChambers();
+                    //bessieController.mgrSetLaunchPos(motif.selectNext());
+                    bessieController.mgrNextLaunchPos().startSpinny(1.0);
+
+
                     if (team == Team.Blue) {
                         bessieController
-                                .startShooter(.6f)
+                                .startShooter(.72f)
                                 .turnTo((float) Math.PI - .1f);
                     } else {
                         bessieController
-                                .startShooter(.6f)
+                                .startShooter(.72f)
                                 .turnTo((float) -(Math.PI - .1f));
                     }
                     state = State.Position;
@@ -156,15 +202,17 @@ public class TheCoolestAuto extends OpMode {
                     bessieController
                             .lift()
                             .delay(200)
-                            .startShooter(.625f)
+                            .startShooter(.7f)
                             .delay(50)
                             // launch artifact 2
+                            //.mgrSetLaunchPos(motif.selectNext())
                             .mgrNextLaunchPos()
                             .delay(600)
                             .lift()
-                            .startShooter(.65f)
+                            .startShooter(.7f)
                             .delay(50)
                             // launch artifact 3
+                            //.mgrSetLaunchPos(motif.selectNext())
                             .mgrNextLaunchPos()
                             .delay(600)
                             .lift()
@@ -190,28 +238,30 @@ public class TheCoolestAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-140.0))
-                            .strafeBy(-20)
-                            .forwardBy(8)
+                            .strafeBy(-23)
+                            //.lowerPower()
+                            .forwardBy(25)
                             .waitWhileMoving()
-                            .delay(350)
-                            .mgrNextIntakePos()
-                            .delay(350);
+                                    .highPower();
+                            //.delay(350)
+                            //.mgrNextIntakePos()
+                            //.delay(350);
 
-                    for (int i = 0; i < 2; i++) {
-                        bessieController
-                                //intake all 3 balls
-                                .forwardBy(2)
-                                .waitWhileMoving()
-                                .delay(350)
-                                .mgrNextIntakePos()
-                                .delay(350);
-                    }
+//                    for (int i = 0; i < 2; i++) {
+//                        bessieController
+//                                //intake all 3 balls
+//                                .forwardBy(2)
+//                                .waitWhileMoving();
+//                                //.delay(350)
+//                               //.mgrNextIntakePos()
+//                                //.delay(350);
+//                    }
                     //bessieController.stopSpinny();
 
                     // move to launch blue
                     bessieController
                             .turnTo((float) Math.toRadians(175))
-                            .startShooter(.6)
+                            .startShooter(.7)
                             .mgrNextLaunchPos()
                             .strafeBy(34)
                             .waitWhileMoving()
@@ -223,28 +273,30 @@ public class TheCoolestAuto extends OpMode {
                             .mgrNextIntakePos()
                             .startSpinny(1)
                             .turnTo((float) Math.toRadians(-220.0))
-                            .strafeBy(20)
-                            .forwardBy(8)
+                            .strafeBy(23)
+                            //.lowerPower()
+                            .forwardBy(25)
                             .waitWhileMoving()
-                            .delay(350)
-                            .mgrNextIntakePos()
-                            .delay(350);
+                                    .highPower();
+                            //.delay(350)
+                            //.mgrNextIntakePos()
+                            //.delay(350);
 
-                    for (int i = 0; i < 2; i++) {
-                        bessieController
-                                //intake all 3 balls
-                                .forwardBy(3)
-                                .waitWhileMoving()
-                                .delay(350)
-                                .mgrNextIntakePos()
-                                .delay(350);
-                    }
+//                    for (int i = 0; i < 2; i++) {
+//                        bessieController
+//                                //intake all 3 balls
+//                                .forwardBy(3)
+//                                .waitWhileMoving();
+//                                //.delay(350)
+//                                //.mgrNextIntakePos()
+//                                //.delay(350);
+//                    }
                     //bessieController.stopSpinny();
 
                     // move to launch
                     bessieController
                             .turnTo((float) Math.toRadians(-175))
-                            .startShooter(.6)
+                            .startShooter(.7)
                             .mgrNextLaunchPos()
                             .strafeBy(-34)
                             .waitWhileMoving()
@@ -255,7 +307,9 @@ public class TheCoolestAuto extends OpMode {
                 state = State.Launch;
                 break;
         }
-
+            telemetry.addData("motif", motif.order);
+            telemetry.addLine(motif.chambers[0] +","+ motif.chambers[1] +","+ motif.chambers[2]);
+            telemetry.addData("mgrIndex", bessie.MGRPositionIndex);
             telemetry.addData("State", state);
             telemetry.addData("Counter", counter);
             telemetry.addData("X Error", xError);

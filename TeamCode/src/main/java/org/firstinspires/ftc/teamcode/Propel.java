@@ -26,6 +26,8 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
+import java.util.Arrays;
+
 @TeleOp(name="Propel", group="TeleOp")
 public class Propel extends LinearOpMode {
 
@@ -125,6 +127,7 @@ public class Propel extends LinearOpMode {
             double ticksPerSecond = bessie.shooter.getVelocity();
             double shooterRPM = (ticksPerSecond / encoderTicksPerRev) * 59.0; //60
             telemetry.addData("Shooter RPM", shooterRPM);
+            telemetry.addData("velocity", velocity);
 
            // if (gamepad2.a) {
              //   bessie.MGR.setPower(.15);
@@ -186,6 +189,9 @@ public class Propel extends LinearOpMode {
             if(gamepad1.right_trigger > .2 && tagVisible){
                 targetHeading += -(Math.toRadians(bearingToTarget) / 10.0);
             }
+            if(gamepad1.left_trigger > .2 && tagVisible){
+                targetHeading += -(Math.toRadians(bearingToTarget) / 10.0);
+            }
             // heading= (drive.pose.heading.toDouble());
             //YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             heading = orientation.getYaw(AngleUnit.RADIANS);
@@ -232,7 +238,9 @@ public class Propel extends LinearOpMode {
             ticks++;
             bessie.updateMGR();
             orientation = imu.getRobotYawPitchRollAngles();
-            telemetry.addLine("Preview on/off: 3 dots, Camera Stream\n");
+            String chambers[] = bessie.getChambers();
+            telemetry.addLine(chambers[0] + "," + chambers[1] + "," + chambers[2]);
+            //bessie.axonToOrder(bessie.MGRTargetVoltage);
             telemetry.addData("Color", bessie.currentColor);
 
             telemetry.addData("bearing", bearingToTarget);
@@ -261,9 +269,16 @@ public class Propel extends LinearOpMode {
     }
 
     public double getVelocityFromDistance(double distance) {
-        return 8.249527 * distance + 1068.729;
+        //return 8.249527 * distance + 1068.729;
+        if (distance>100.0){
+            return 8.0 * distance + 1068.729;
+        } else {
+            //Near Shooting
+// 1400
+        // 1700
+            return 8.5 * distance + 1200.0;
+        }
     }
-
 
     private void monkeyBuisness(Bessie bessie) {
         LLResult result = bessie.limelight.getLatestResult();
