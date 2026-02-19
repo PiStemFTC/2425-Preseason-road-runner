@@ -361,6 +361,8 @@ public class Bessie {
         MGR.setPower(mgrController.calculate(
                 analogInput.getVoltage()));
         //axon.update();
+        telemetry.addData("voltage", analogInput.getVoltage());
+
     }
 
     public void updateMGR_(){
@@ -468,7 +470,7 @@ public class Bessie {
     }
 
     private double MGRCalcIntakePosition(int position){
-        double positions[] = {0.316, 1.413, 2.506};
+        double positions[] = {0.347, 1.46, 2.58};
         //double positions[] = {0.0+60.0, 120.0+60.0, 240.0+60.0};
         return positions[position];
     }
@@ -487,7 +489,7 @@ public class Bessie {
     }
 
     private double MGRCalcLaunchPosition(int position){
-        double positions[] = {0.8, 1.915, 3.019};
+        double positions[] = {0.94, 2.06, 3.16};
         //double positions[] = {0.0, 120.0, 240.0};
         return positions[position];
     }

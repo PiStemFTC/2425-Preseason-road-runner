@@ -77,7 +77,7 @@ public class TheCoolestAuto extends OpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         bessie.webcam(hardwareMap);
         limelight.pipelineSwitch(0); // obelisk aprilTags
-        //move start here if limelight has delay
+        //move start here if limelight has dela
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP);
         bessie.MGRNextLaunchPosition();
